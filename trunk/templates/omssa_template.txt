@@ -1,0 +1,1 @@
+/opt/omssa-2.1.7.linux/omssacl -fm {{ input_file }} -d {{ fasta_file }} -to {{ product_tolerance }} -te {{ precursor_tolerance }} -mf {{ fixed_mod_id }} -mv {{ variable_mod_id }} -oc {{ output_file }}
