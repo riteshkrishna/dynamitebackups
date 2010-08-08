@@ -1,7 +1,7 @@
-input_file,/home/ritesh/Toxo_Test_MSDataset/Toxo_1D_Slice1.mgf
-fasta_file,/home/ritesh/ToxoDB/TgondiiGT1AnnotatedProteins_ToxoDB-6.0.fasta
+input_file,/Users/riteshk/Ritesh_Work/Toxo/Toxo_Test_MSDataset/Toxo_1D_Slice1.mgf
+fasta_file,/Users/riteshk/Ritesh_Work/Toxo/ToxoDB/TgondiiGT1AnnotatedProteins_ToxoDB-6.0.fasta
 product_tolerance,0.8
 precursor_tolerance,1.5
 fixed_mod_id,3
 variable_mod_id,1
-output_file,/home/ritesh/TestSpace/omssa_testSpace/omssa_out.csv
+output_file,/Users/riteshk/Ritesh_Work/TestSpace/omssa_testSpace/testrun_osx.csv
