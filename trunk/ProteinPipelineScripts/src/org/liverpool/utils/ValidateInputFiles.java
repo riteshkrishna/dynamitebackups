@@ -2,8 +2,12 @@ package org.liverpool.utils;
 
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 public class ValidateInputFiles {
 
+	static Logger log = Logger.getLogger(ValidateInputFiles.class);
+	
 	/**
 	 * Validates whether the keywords described in the input file are allowed keywords or not.
 	 * 
@@ -13,7 +17,15 @@ public class ValidateInputFiles {
 	 */
 
 	public boolean validateContentOfInputFileAgainstAllowedKeywords(Set <String> allowedKeywords, Set <String> inputKeys){
-		boolean matchFound = allowedKeywords.containsAll(inputKeys);
+	    
+		boolean matchFound = false;
+		try {
+			matchFound = allowedKeywords.containsAll(inputKeys);
+		}catch (Exception ex) {
+			log.error("Exception occurred in set matching :: " + ex.getLocalizedMessage());
+			ex.printStackTrace();
+		}
+		log.error("Validation finished");
 		return matchFound;
 	}
 	
