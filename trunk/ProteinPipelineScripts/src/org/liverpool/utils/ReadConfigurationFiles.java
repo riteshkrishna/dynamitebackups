@@ -17,7 +17,9 @@ public class ReadConfigurationFiles {
 	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
 	
 	/**
-	 * 
+	 * Read the input CSV file where each line has a keyword followed by the value associated. The key and value pair
+	 * will be used to form the executable command string. The key-value pairs are returned in a Hash.
+	 *  
 	 * @param inputFile
 	 * @param withinLineDelimiter
 	 * @return
@@ -45,6 +47,7 @@ public class ReadConfigurationFiles {
 	}
 	
 	/**
+	 * Process each line according to the delimiter mentioned. Return the results in for a Hash.
 	 * 
 	 * @param line
 	 * @param delimiter
@@ -69,6 +72,7 @@ public class ReadConfigurationFiles {
 	}
 	
 	/**
+	 * Read the template of the executable command string and return.
 	 * 
 	 * @param templateFile
 	 * @return
@@ -100,6 +104,9 @@ public class ReadConfigurationFiles {
 	}
 	
 	/**
+	 * Read the keyword definition file and return it's content in a set. Only this set of keywords are allowed
+	 * to exist in the input file. The keys received in input file can be matched with the keywords retrieved by
+	 * this function to check for the validity of the input file.
 	 * 
 	 * @param keywordFile
 	 */
@@ -125,6 +132,7 @@ public class ReadConfigurationFiles {
 	
 	
 	/**
+	 * The test method
 	 * @param args
 	 */
 	public static void main(String[] args) {
