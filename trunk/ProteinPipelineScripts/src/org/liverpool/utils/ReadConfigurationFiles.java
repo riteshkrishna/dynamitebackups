@@ -16,6 +16,7 @@ public class ReadConfigurationFiles {
 	
 	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
 	
+
 	/**
 	 * Read the input CSV file where each line has a keyword followed by the value associated. The key and value pair
 	 * will be used to form the executable command string. The key-value pairs are returned in a Hash.
@@ -136,8 +137,28 @@ public class ReadConfigurationFiles {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
+		
+		ReadConfigurationFiles rc = new ReadConfigurationFiles();
+		
+		File keywordFile = new File("resources/omssaKeywords.txt");
+		
+		File inputCsvFile = new File("inputFiles/omssa_inputFile.txt");
+		String delimiter = ",";
+
+		File templateCommandFile = new File("templates/omssa_template.txt");
+		
+		try{
+			rc.readKeywordDefinitionFile(keywordFile);
+			rc.readInputCsvFile(inputCsvFile,delimiter);
+			rc.readTemplateCommandFile(templateCommandFile);
+			
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		
 	}
 
 }
