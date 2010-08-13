@@ -1,0 +1,5 @@
+input_file,/Users/riteshk/Ritesh_Work/Toxo/Toxo_Test_MSDataset/Toxo_1D_Slice1.mgf
+output_file,/Users/riteshk/Ritesh_Work/TestSpace/tandem_testSpace/testrun_tandem.xml
+species,Toxoplasma
+default_input_file,/opt/tandem-osx-intel-10-01-01-4/bin/default_input.xml
+taxonomy_file,/opt/tandem-osx-intel-10-01-01-4/bin/taxonomy.xml
