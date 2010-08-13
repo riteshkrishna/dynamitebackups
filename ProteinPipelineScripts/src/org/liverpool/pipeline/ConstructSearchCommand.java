@@ -125,6 +125,17 @@ public class ConstructSearchCommand {
 		ConstructSearchCommand cs = new ConstructSearchCommand(input,template,allowedKeyword,inputDelimiter);
 		String command = cs.accpetInputAndCreateCommand();
 		
+		// For X!Tandem
+		log.info("Constructing command for X!Tandem...");
+		input = new File("inputFiles/tandem_inputFile.txt");
+		template = new File("templates/tandem_template.txt");
+		allowedKeyword = new File("resources/tandemKeywords.txt");
+		inputDelimiter = ",";
+		
+		cs = new ConstructSearchCommand(input,template,allowedKeyword,inputDelimiter);
+		command = cs.accpetInputAndCreateCommand();
+		
+		
 	}
 
 }
