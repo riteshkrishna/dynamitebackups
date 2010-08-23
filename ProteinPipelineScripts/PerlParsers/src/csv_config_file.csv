@@ -1,0 +1,28 @@
+Internal data type,OMSSA,xtandem,Multiple Search Engine Pipeline,pepXML
+spec_index,Spectrum number,Spectrum number,Spectrum number,Spectrum number
+spec_title,Filename/id,Filename/id,Filename/id,Filename/id
+seq,Peptide,Peptide,Peptide,Peptide
+evalue,E-value,E-value,FDRScore,xcorr
+mass_obs,Mass,Mass,Mass,
+gi,gi,GI,GI,Mass
+prot_acc,Accession,Accession,Accession,Accession
+start,Start,Start,Start,Start
+stop,Stop,Stop,Stop,Stop
+defline,Defline,Defline,Defline,
+mods,Mods,Mods,Mods,Mods
+charge,Charge,Charge,Charge,Charge
+mass_exp,Theo Mass,Theo Mass,Theo Mass,Theo Mass
+pvalue,P-value,Tandem Hyperscore,,spscore
+pag_num,NIST score,,PAG,
+prot_score,,,Protein FDRScore,
+,,,,
+,,,,
+CV mappings,,,,
+Data type,cvTerm,Accession,Search engine,
+evalue,OMSSA:evalue,MS:1001328,OMSSA,
+pvalue,OMSSA:pvalue,MS:1001329,OMSSA,
+evalue,xtandem:expect,MS:1001330,xtandem,
+pvalue,xtandem:hyperscore,MS:1001331,xtandem,
+evalue,FDRScore,N/A,Multiple Search Engine Pipeline,
+evalue,xcorr,N/A,pepXML,
+pvalue,spscore,N/A,pepXML,
