@@ -61,7 +61,7 @@ public class ReadConfigurationFiles {
 		scanner.useDelimiter(delimiter);
 		try{
 			if(scanner.hasNext()){
-				keyValue.put(scanner.next(), scanner.next());
+				keyValue.put(scanner.next().trim(), scanner.next().trim());
 			}else{
 				log.error("Empty or invalid line : Unable to process");
 			}
@@ -118,7 +118,7 @@ public class ReadConfigurationFiles {
 		
 		try{
 			while(scanner.hasNextLine() ){
-				keywords.put(scanner.nextLine(), " ");
+				keywords.put(scanner.nextLine().trim(), " ");
 			}
 		}
 		finally{
@@ -146,7 +146,7 @@ public class ReadConfigurationFiles {
 		File keywordFile = new File("resources/omssaKeywords.txt");
 		
 		File inputCsvFile = new File("inputFiles/omssa_inputFile.txt");
-		String delimiter = ",";
+		String delimiter = "=";
 
 		File templateCommandFile = new File("templates/omssa_template.txt");
 		

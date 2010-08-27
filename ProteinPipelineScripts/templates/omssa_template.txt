@@ -1,1 +1,1 @@
-/opt/omssa-2.1.9.macos/omssacl -fm {{ input_file }} -d {{ fasta_file }} -to {{ product_tolerance }} -te {{ precursor_tolerance }} -mf {{ fixed_mod_id }} -mv {{ variable_mod_id }} -oc {{ output_file }}
+/opt/omssa-2.1.9.macos/omssacl {{ input_file }} {{ fasta_file }} {{ enzyme_name }} {{ missed_cleavages }} {{ product_tolerance }} {{ precursor_tolerance }} {{ fixed_mod_id }} {{ variable_mod_id }} {{ output_file }}

@@ -78,6 +78,7 @@ public class ConstructMzIdentMLParserCommand {
 	
 	
 	/**
+	 * Note - The allowed search engine keywords are - "omssa_parserMzIdentML" and "tandem_parserMzIdentML". 
 	 * The test function
 	 * @param args
 	 * 
@@ -87,7 +88,7 @@ public class ConstructMzIdentMLParserCommand {
 		PropertyConfigurator.configure(logProperties);
 		
 		String pathOfConfigFile = "resources/externalSetup.conf";
-		String delimiter 		= ",";
+		String delimiter 		= "=";
 		
 		ConstructMzIdentMLParserCommand cmp = new ConstructMzIdentMLParserCommand();
 		cmp.getTheExternalProgramInfo(pathOfConfigFile, delimiter);
