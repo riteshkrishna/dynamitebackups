@@ -83,6 +83,14 @@ public class ConstructSearchCommand {
 	}
 	
 	/**
+	 * This function will take the command string constructed after filling the template, and remove
+	 * the unused "{{ text }}" blocks to produce the usuable command string. 
+	 */
+	String removeExtraPalceholdersFromTemplate(String commandString){
+		return commandString.replaceAll("\\{\\{ .* \\}\\}", "");
+	}
+	
+	/**
 	 * 
 	 * @return
 	 */
@@ -96,11 +104,16 @@ public class ConstructSearchCommand {
 			
 			if(vif.validateContentOfInputFileAgainstAllowedKeywords(allowedKeywords, inputHash.keySet())){
 				command = fillTheCommandTemplate(inputHash,templateCommand);
-				log.info("Created Command :: "+ command);
 			}
 			else{
 				log.error("Invalid input keywords found in the input file");
+				throw new Exception();
 			}
+			
+			// Once the template has been filled with user-given entries, we must remove the unused "{{ text }}"
+			// place-holders in the constructed command string
+			command = removeExtraPalceholdersFromTemplate(command);
+			log.info("Created Command :: "+ command);
 			
 		}catch(Exception ex){
 			log.fatal("Failed to create command.");
@@ -120,7 +133,7 @@ public class ConstructSearchCommand {
 		File input = new File("inputFiles/omssa_inputFile.txt");
 		File template = new File("templates/omssa_template.txt");
 		File allowedKeyword = new File("resources/omssaKeywords.txt");
-		String inputDelimiter = ",";
+		String inputDelimiter = "=";
 		
 		ConstructSearchCommand cs = new ConstructSearchCommand(input,template,allowedKeyword,inputDelimiter);
 		String command = cs.accpetInputAndCreateCommand();
@@ -130,7 +143,7 @@ public class ConstructSearchCommand {
 		input = new File("inputFiles/tandem_inputFile.txt");
 		template = new File("templates/tandem_template.txt");
 		allowedKeyword = new File("resources/tandemKeywords.txt");
-		inputDelimiter = ",";
+		inputDelimiter = "=";
 		
 		cs = new ConstructSearchCommand(input,template,allowedKeyword,inputDelimiter);
 		command = cs.accpetInputAndCreateCommand();
