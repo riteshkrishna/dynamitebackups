@@ -8,3 +8,5 @@ parent_search_plus
 parent_search_minus
 decoy_regex
 modifications
+decoy_ratio
+rank_threshold
