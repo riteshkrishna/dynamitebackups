@@ -37,15 +37,24 @@ public class ConstructParamFileForMzIdentMLParser {
 			paramDelimiter = paramFiledelimiter;
 			
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
-			searchInputContent = rc.readInputCsvFile(searchEngineInputFile, seDelimiter);
+			searchInputContent = rc.readInputCsvFile(searchEngineInputFile, seDelimiter); 
 			paramInputContent = rc.readInputCsvFile(parserConfigurationInputFile, paramDelimiter);
+			
+			// need to validate these files !!
+			
 		}catch(Exception e){
 			log.fatal("Problem creating ConstructParamFileForMzIdentMLParser Object");
 			e.printStackTrace();
 		}
 	}
 	
+	void findDataFromSearchEngineInput(){
+		
+	}
 	
+	void findDataFromParserConfigurationFileInput(){
+		
+	}
 	
 	/**
 	 * The test method
