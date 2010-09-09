@@ -19,18 +19,18 @@ public class KeywordMap {
 	public KeywordMap() {
 		
 		paramInputToSearchEngineInputMap = new HashMap<String, String>();
-		paramInputToSearchEngineInputMap.put("database_file", "fasta_file");
-		paramInputToSearchEngineInputMap.put("enzyme_name", "enzyme_name");
-		paramInputToSearchEngineInputMap.put("missed_cleavage_no","missed_cleavages");
-		paramInputToSearchEngineInputMap.put("fragment_search_plus", "product_tolerance");
-		paramInputToSearchEngineInputMap.put("fragment_search_minus", "product_tolerance");
-		paramInputToSearchEngineInputMap.put("parent_search_plus", "precursor_tolerance");
-		paramInputToSearchEngineInputMap.put("parent_search_minus", "precursor_tolerance");
-		paramInputToSearchEngineInputMap.put("modifications", " ");
-		paramInputToSearchEngineInputMap.put("user_name", " ");
-		paramInputToSearchEngineInputMap.put("decoy_regex", " ");
-		paramInputToSearchEngineInputMap.put("decoy_ratio", " ");
-		paramInputToSearchEngineInputMap.put("rank_threshold", " ");
+		paramInputToSearchEngineInputMap.put("database_file", "fasta_file"); 			     // input from SE
+		paramInputToSearchEngineInputMap.put("enzyme_name", "enzyme_name");				     // input from SE
+		paramInputToSearchEngineInputMap.put("missed_cleavage_no","missed_cleavages");	     // input from SE	
+		paramInputToSearchEngineInputMap.put("fragment_search_plus", "product_tolerance");   // input from SE
+		paramInputToSearchEngineInputMap.put("fragment_search_minus", "product_tolerance");  // input from SE
+		paramInputToSearchEngineInputMap.put("parent_search_plus", "precursor_tolerance");   // input from SE
+		paramInputToSearchEngineInputMap.put("parent_search_minus", "precursor_tolerance");  // input from SE
+		paramInputToSearchEngineInputMap.put("modifications", " ");							 // input from SE - Needs to be resolved 
+		paramInputToSearchEngineInputMap.put("user_name", "user_name");								 // input from param/parser input		
+		paramInputToSearchEngineInputMap.put("decoy_regex", "decoy_regex");							 // input from param/parser input	
+		paramInputToSearchEngineInputMap.put("decoy_ratio", "decoy_ratio");							 // input from param/parser input	
+		paramInputToSearchEngineInputMap.put("rank_threshold", "rank_threshold");						 // input from param/parser input	
 	}
 	
 	public HashMap<String, String> getTheMappingForParamToSearchEngineFile(){
