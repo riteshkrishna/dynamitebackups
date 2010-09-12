@@ -95,9 +95,10 @@ public class ConstructMzIdentMLParserCommand {
 		
 		// For csv2mzIdentML
 		String searchEngineKeyword = "omssa_parserMzIdentML"; 
-		String paramFile = "PerlParsers/examples/toxo/toxo_omssa_params.csv";
+		//String paramFile = "PerlParsers/examples/toxo/toxo_omssa_params.csv";
+		String paramFile = "logs/exampleParam_omssa.csv";
 		String inputFile = "PerlParsers/examples/toxo/Toxo_1D_Slice43_omssa.csv";
-		String outputMzIdentMLFile = "PerlParsers/examples/toxo/Test_Toxo_1D_Slice43_omssa.mzid";
+		String outputMzIdentMLFile = "logs/Test_Toxo_1D_Slice43_omssa_RK.mzid";
 		String commandString = cmp.createMzIdentML(searchEngineKeyword, paramFile, inputFile, outputMzIdentMLFile);
 		
 		ExecuteCommands ec = new ExecuteCommands();
@@ -105,9 +106,10 @@ public class ConstructMzIdentMLParserCommand {
 		
 		// For Tandem2mzIdentML
 		searchEngineKeyword = "tandem_parserMzIdentML"; 
-		paramFile = "PerlParsers/examples/toxo/toxo_tandem_params.csv";
+		//paramFile = "PerlParsers/examples/toxo/toxo_tandem_params.csv";
+		paramFile = "logs/exampleParam_tandem.csv";
 		inputFile = "PerlParsers/examples/toxo/Toxo_1D_Slice43_tandem.dat";
-		outputMzIdentMLFile = "PerlParsers/examples/toxo/Test_Toxo_1D_Slice43_tandem.mzid";
+		outputMzIdentMLFile = "logs/Test_Toxo_1D_Slice43_tandem_RK.mzid";
 		commandString = cmp.createMzIdentML(searchEngineKeyword, paramFile, inputFile, outputMzIdentMLFile);
 		
 		ec.execute(commandString);
