@@ -25,6 +25,7 @@ public class ConstructParamFileForMzIdentMLParser {
 	// anything else in the input files.
 	public static final String SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT = "mod";
 	public static final String SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT = "fixed"; // to check if the mod is fixed or variable
+	public static final String SUBSTRING_TO_IDENTIFY_ENZYME = "enzyme";
 	
 	File searchEngineInputFile;
 	String seDelimiter;
@@ -34,10 +35,14 @@ public class ConstructParamFileForMzIdentMLParser {
 	String umodFile;
 	String umodFileDelimiter;
 	String omssaIdentifierInHeaderInUmodFile;
+	File enzymeFile;
+	String enzymeFileDelimiter;
 	
 	HashMap <String, String> searchInputContent;
 	HashMap <String, String> parserInputContent;	
+	HashMap <String, String> enzymeFileContent;
 	Set <String> paramKeywords;					
+	
 	
 	HashMap<String, String> paramKeyValueHash;
 	
@@ -49,6 +54,8 @@ public class ConstructParamFileForMzIdentMLParser {
 	 * @param parserFiledelimiter
 	 * @param umodFile 
 	 * @param umodFileDelimiter
+	 * @param enzymeFile
+	 * @param enzymeFileDelimiter
 	 * @param omssaIdentifierInHeaderInUmodFile
 	 * @paramKeywordFile                    - The keyword file for Param file creation.
 	 */
@@ -56,6 +63,8 @@ public class ConstructParamFileForMzIdentMLParser {
 												String parserConfigurationInput, String parserFileDelimiter,
 												String umodFile, String umodFileDelimiter,
 												String omssaIdentifierInHeaderInUmodFile,
+												String enzymeFile,
+												String enzymeFileDelimiter,
 												String paramKeywordFile) {
 		try{
 			searchEngineInputFile = new File(searchEngineInput);
@@ -65,12 +74,16 @@ public class ConstructParamFileForMzIdentMLParser {
 			this.umodFile =  umodFile;
 			this.umodFileDelimiter = umodFileDelimiter;
 			this.omssaIdentifierInHeaderInUmodFile = omssaIdentifierInHeaderInUmodFile;
+			this.enzymeFile = new File(enzymeFile);
+			this.enzymeFileDelimiter = enzymeFileDelimiter;
+			
 			this.paramKeywordFile = new File(paramKeywordFile);
 			
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
 			searchInputContent = rc.readInputCsvFile(searchEngineInputFile, seDelimiter); 
 			parserInputContent = rc.readInputCsvFile(parserConfigurationInputFile, parserDelimiter);
 			paramKeywords = rc.readKeywordDefinitionFile(this.paramKeywordFile);	
+			enzymeFileContent = rc.readInputCsvFile(this.enzymeFile, this.enzymeFileDelimiter);
 			
 			if(paramKeywords.isEmpty() || searchInputContent.isEmpty() || parserInputContent.isEmpty())
 			{	
@@ -223,7 +236,10 @@ public class ConstructParamFileForMzIdentMLParser {
 			
 				String resolvedValue;
 				if(this.searchInputContent.containsKey(value)){
-					resolvedValue = this.searchInputContent.get(value).trim();
+					if(value.contains(SUBSTRING_TO_IDENTIFY_ENZYME)){
+						resolvedValue = this.enzymeFileContent.get(this.searchInputContent.get(value).trim());
+					}else 
+						resolvedValue = this.searchInputContent.get(value).trim();
 				}else if(this.parserInputContent.containsKey(value)){
 					resolvedValue = this.parserInputContent.get(value).trim();
 				}else if(key.contains(SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){    
@@ -300,18 +316,25 @@ public class ConstructParamFileForMzIdentMLParser {
 		String umodFileDelimiter					= ",";	
 		String omssaIdentifierInHeaderInUmodFile	= "Omssa_ID";	
 		String paramKeywordFile 					= "resources/paramKeywords.txt";
+		String enzymeFile							= "resources/enzymeList.csv"; 
+		String enzymeFileDelimiter					= "=";
 		
 		ConstructParamFileForMzIdentMLParser cp = new ConstructParamFileForMzIdentMLParser(searchEngineInput,searchFileDelimiter, 
 																			parserConfigurationInput,parserFileDelimiter,
 																			umodFile, umodFileDelimiter,
 																			omssaIdentifierInHeaderInUmodFile,
+																			enzymeFile,enzymeFileDelimiter,
 																			paramKeywordFile);
 		HashMap<String,String> resolvedValuesForParam = cp.fillKeywordParametersForParamFile(); 
 		
 		System.out.println(resolvedValuesForParam.toString());
 		
-		File paramFileToCreate = new File("logs/exampleParam.csv");
+		File paramFileToCreate = new File("logs/exampleParam_omssa.csv");
 		File paramTemplateFile = new File("templates/omssa_paramfile_template.txt");
+		cp.createParamFile(paramFileToCreate, paramTemplateFile);
+		
+		paramFileToCreate = new File("logs/exampleParam_tandem.csv");
+		paramTemplateFile = new File("templates/tandem_paramfile_template.txt");
 		cp.createParamFile(paramFileToCreate, paramTemplateFile);
 	}
 
