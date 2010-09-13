@@ -8,15 +8,18 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.liverpool.pipeline.ExecuteCommands;
 import org.liverpool.utils.ReadConfigurationFiles;
+import org.liverpool.pipeline.Constants;;
 
 public class ConstructMzIdentMLParserCommand {
 	
 	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
 	
+	/*
 	// The following strings must match in externalSetup.conf file. The values opposite these keywords
 	// decide which perl file to call for a given search engine
 	static String omssa_keyword = "omssa_parserMzIdentML";
 	static String tandem_keyword = "tandem_parserMzIdentML";
+	*/
 	
 	File configFileWithPathsForExternalCalls;
 	String omssa_perlFile;
@@ -34,14 +37,14 @@ public class ConstructMzIdentMLParserCommand {
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
 			HashMap <String, String> inputs = rc.readInputCsvFile(configFileWithPathsForExternalCalls,delimiter);
 			
-			if(inputs.containsKey(omssa_keyword)){
-				omssa_perlFile = inputs.get(omssa_keyword);
+			if(inputs.containsKey(Constants.OMSSA_KEYWORD)){
+				omssa_perlFile = inputs.get(Constants.OMSSA_KEYWORD);
 			}else {
 				log.fatal("Perl Command for Omssa2mzIdentML not found. Check externalSetup.conf");
 				throw new Exception();
 			}
-			if(inputs.containsKey(tandem_keyword)){
-				tandem_perlFile = inputs.get(tandem_keyword);
+			if(inputs.containsKey(Constants.TANDEM_KEYWORD)){
+				tandem_perlFile = inputs.get(Constants.TANDEM_KEYWORD);
 			}else{
 				log.fatal("Perl Command for Tandem2mzIdentML not found. Check externalSetup.conf");
 				throw new Exception();
@@ -63,9 +66,9 @@ public class ConstructMzIdentMLParserCommand {
 	public String createMzIdentML(String searchEngineKeyword, String paramFile,String inputFile, String outputMzIdentMLFile){
 		String command = new String();
 		
-		if(searchEngineKeyword.equals(omssa_keyword)){
+		if(searchEngineKeyword.equals(Constants.OMSSA_KEYWORD)){
 			command = "perl " + omssa_perlFile + " " + inputFile + " " + " " + paramFile + " " + outputMzIdentMLFile;
-		}else if(searchEngineKeyword.equals(tandem_keyword)){
+		}else if(searchEngineKeyword.equals(Constants.TANDEM_KEYWORD)){
 			command = "perl " + tandem_perlFile + " " + inputFile + " " + " " + paramFile + " " + outputMzIdentMLFile;
 		}else{
 			log.fatal("Search Engine Identifier not recognized.");
