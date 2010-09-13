@@ -14,18 +14,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.liverpool.utils.ReadConfigurationFiles;
 import org.liverpool.utils.ReadUmodTable;
-
+import org.liverpool.pipeline.Constants;
 
 public class ConstructParamFileForMzIdentMLParser {
 
 	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
-	
-	// The keyword files for the search engines represent fixed/variable modifications by "fixed_mod_id" or "variable_mod_id". 
-	// We will use the substring "mod" to identify these fields. We should make sure that "mod" is not used for representing 
-	// anything else in the input files.
-	public static final String SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT = "mod";
-	public static final String SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT = "fixed"; // to check if the mod is fixed or variable
-	public static final String SUBSTRING_TO_IDENTIFY_ENZYME = "enzyme";
 	
 	File searchEngineInputFile;
 	String seDelimiter;
@@ -121,7 +114,7 @@ public class ConstructParamFileForMzIdentMLParser {
 			Iterator<String> keys = searchInputContent.keySet().iterator();
 			while(keys.hasNext()){
 				String key = keys.next(); 
-				if(key.contains(SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){
+				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){
 					String userInputForMod = searchInputContent.get(key).trim();
 					userInputForMod = userInputForMod.replaceAll("[^a-zA-Z0-9]", "##"); // replace all the non-alphanumeric characters by ##
 					String [] tokens = userInputForMod.split("##");
@@ -133,12 +126,12 @@ public class ConstructParamFileForMzIdentMLParser {
 							continue;
 						}
 						omssaIdsToFind.add(numericVal);          
-						if(key.contains(SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT))
+						if(key.contains(Constants.SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT))
 							fixedModOrNot.add(1);
 						else fixedModOrNot.add(0);
 						
 						log.info("modification number extracted from search engine input :: "+  numericVal + 
-									" :: Fixed = " + key.contains(SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT));
+									" :: Fixed = " + key.contains(Constants.SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT));
 					}
 				}
 			}
@@ -236,13 +229,13 @@ public class ConstructParamFileForMzIdentMLParser {
 			
 				String resolvedValue;
 				if(this.searchInputContent.containsKey(value)){
-					if(value.contains(SUBSTRING_TO_IDENTIFY_ENZYME)){
+					if(value.contains(Constants.SUBSTRING_TO_IDENTIFY_ENZYME)){
 						resolvedValue = this.enzymeFileContent.get(this.searchInputContent.get(value).trim());
 					}else 
 						resolvedValue = this.searchInputContent.get(value).trim();
 				}else if(this.parserInputContent.containsKey(value)){
 					resolvedValue = this.parserInputContent.get(value).trim();
-				}else if(key.contains(SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){    
+				}else if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){    
 					resolvedValue = modificationString; // because the Map in keywordMap has "modifications" key
 				}else {
 					log.fatal("No resolution found for the value =" + value +" for key =" + key + " in the keywordMap structure");
