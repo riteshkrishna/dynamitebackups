@@ -7,3 +7,6 @@ precursor_tolerance
 fixed_mod_id
 variable_mod_id
 output_file
+species
+default_input_file
+taxonomy_file
