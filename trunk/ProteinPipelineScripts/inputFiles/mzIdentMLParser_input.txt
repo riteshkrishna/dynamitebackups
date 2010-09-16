@@ -1,4 +1,0 @@
-user_name = Ritesh
-decoy_regex = Rev
-decoy_ratio = 3
-rank_threshold = 3
