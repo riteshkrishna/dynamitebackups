@@ -13,10 +13,10 @@ import com.sun.net.httpserver.Headers;
 
 public class ReadUmodTable {
 
-	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
+	static Logger log = Logger.getLogger(ReadUmodTable.class);
 	int numberOfColumnInModFile = 7;
 	
-	String umodFileName;
+	File umodFileName;
 	String umodFileDelimiter;
 	ArrayList <String> content;
 	ArrayList<Integer> omssaIdentifiers; 
@@ -26,12 +26,13 @@ public class ReadUmodTable {
 	 * @param umodFile
 	 * @param umodFileDelimiter
 	 */
-	public ReadUmodTable(String umodFile,String umodFileDelimiter) {
+	public ReadUmodTable(File umodFile,String umodFileDelimiter) {
 		umodFileName = umodFile;
 		this.umodFileDelimiter = umodFileDelimiter;
 		content = new ArrayList<String>();
 		omssaIdentifiers = new ArrayList<Integer>();
 	}
+	
 	
 	/**
 	 * This will read the content of the file in this.content and return the list of all the omssa identifiers in
@@ -42,7 +43,7 @@ public class ReadUmodTable {
 	 */
 	void readUmodContentFromFile(String omssaIdentifierInHeader) throws Exception{
 		
-		Scanner scanner = new Scanner(new File(umodFileName));	
+		Scanner scanner = new Scanner(umodFileName);	
 		
 		int omssa_id_headerColumn = -1;
 		boolean header = true;
@@ -149,7 +150,7 @@ public class ReadUmodTable {
 			omssaIdsToFind.add(3);
 			omssaIdsToFind.add(2);
 			
-			ReadUmodTable rut = new ReadUmodTable(umodFile,umodFileDelimiter);
+			ReadUmodTable rut = new ReadUmodTable(new File(umodFile),umodFileDelimiter);
 			// Get the information about those identifiers in a hash
 			HashMap<Integer,String> info = rut.getInformationForGivenOmssaIdentifiers(omssaIdentifierInHeader,omssaIdsToFind);
 			

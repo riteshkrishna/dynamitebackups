@@ -19,7 +19,7 @@ import org.liverpool.pipeline.ExecuteCommands;
  */
 public class CallMultipleSearchMethod {
 
-	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
+	static Logger log = Logger.getLogger(CallMultipleSearchMethod.class);
 	
 	String mzIdentMLFile_1;
 	String mzIdentMLFile_2;

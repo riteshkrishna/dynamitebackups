@@ -12,7 +12,7 @@ import org.liverpool.pipeline.Constants;;
 
 public class ConstructMzIdentMLParserCommand {
 	
-	static Logger log = Logger.getLogger(ReadConfigurationFiles.class);
+	static Logger log = Logger.getLogger(ConstructMzIdentMLParserCommand.class);
 	
 	/*
 	// The following strings must match in externalSetup.conf file. The values opposite these keywords
