@@ -21,6 +21,7 @@ public class Constants {
 		
 		public static String STRING_TO_IDENTIFY_SPECIES = "species";
 		public static String STRING_TO_IDENTIFY_FASTA_FILE = "fasta_file";
+		public static String STRING_TO_IDENTIFY_OUTPUT_FILE = "output_file";
 			
 		// Fixed Strings required for MultipleSearch jar
 		public static String OMSSA_ID = "omssa";
