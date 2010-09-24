@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.liverpool.utils.InputCleaning;
 import org.liverpool.utils.ReadConfigurationFiles;
 import org.liverpool.utils.ResolveOmssaModificationIdentifiers;
 import org.liverpool.utils.ValidateInputFiles;
@@ -31,6 +32,7 @@ public class ConstructSearchCommand {
 	File enzymeFile; 
 	String enzymeFileDelimiter;
 
+	HashMap<String,String> inputContent;
 	
 	/**
 	 * 
@@ -62,6 +64,8 @@ public class ConstructSearchCommand {
 		this.omssaIdentifierInHeaderInUmodFile = omssaIdentifierInHeaderInUmodFile;
 		this.enzymeFile = enzymeFile;
 		this.enzymeFileDelimiter = enzymeFileDelimiter;
+		
+		inputContent = new HashMap<String,String>();
 	}
 	
 	
@@ -110,6 +114,13 @@ public class ConstructSearchCommand {
 			String textToReplace = "{{ " + key.trim() + " }}";
 			command = command.replace(textToReplace,inputHash.get(key));
 		}
+		
+		// Remove all the -te,-to etc
+		InputCleaning ic = new InputCleaning();
+		inputHash = ic.cleanTheSearchEngineInputFromExtraFlags(inputHash);
+		// Store the information in the class
+		this.inputContent.putAll(inputHash);
+		
 		return command;
 	}
 	
@@ -157,7 +168,7 @@ public class ConstructSearchCommand {
 		return command;
 	}
 	
-	
+		
 	/**
 	 * Special processing is required for X!Tandem
 	 * 
@@ -170,6 +181,9 @@ public class ConstructSearchCommand {
 		String command = new String(templateCommand);
 		
 		try{
+			InputCleaning ic = new InputCleaning();
+			inputHash = ic.cleanTheSearchEngineInputFromExtraFlags(inputHash);
+			/*
 			// Remove all -te, -to etc strings from the input content
 			Iterator<String> keys = inputHash.keySet().iterator();
 			while(keys.hasNext()){
@@ -178,6 +192,7 @@ public class ConstructSearchCommand {
 				if(value.length > 1)
 					inputHash.put(key, value[1]);
 			}	
+			*/
 			
 			// Resolve the mode identifiers
 			ResolveOmssaModificationIdentifiers rom = new ResolveOmssaModificationIdentifiers(this.inputFile, this.inputFileDelimiter,
@@ -199,7 +214,7 @@ public class ConstructSearchCommand {
 			String precursor_tol = null;
 			
 			HashMap <String, String> enzymeFileContent = rc.readInputCsvFile(this.enzymeFile, this.enzymeFileDelimiter);
-			keys = null;
+			Iterator<String> keys = null;
 			keys = inputHash.keySet().iterator();
 			while(keys.hasNext()){
 				String key = keys.next(); 
@@ -230,7 +245,7 @@ public class ConstructSearchCommand {
 					inputHash.put(key, xmlForParenttMass);
 				}
 				
-				// Check if the taxonomy file exists, if not, then create a new one on that location
+				// Create the taxonomy file
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_TAXONOMY_FILE)){
 					try{
 							File taxonomyFile = new File(inputHash.get(key));
@@ -256,6 +271,18 @@ public class ConstructSearchCommand {
 							e.printStackTrace();
 						}
 				}
+				
+				// Make sure that the output file has xml extension
+				if(key.contains(Constants.STRING_TO_IDENTIFY_OUTPUT_FILE)){
+					String xmlOutputFile = "";
+					String presentName = inputHash.get(key);
+					String [] name_ext = presentName.split("\\.");
+					if(name_ext.length != 0){
+						xmlOutputFile = name_ext[0].concat(".xml");
+					}else xmlOutputFile = presentName.concat(".xml");
+					
+					inputHash.put(key, xmlOutputFile);
+				}
 			}
 		
 
@@ -271,11 +298,20 @@ public class ConstructSearchCommand {
 			e.printStackTrace();
 		}
 		
-		
+		// Store the information in the class
+		this.inputContent.putAll(inputHash);
 		return command;
 	}
 	
 	
+	/**
+	 * 
+	 * Get the name of the output file produced
+	 * 
+	 */
+	public String getNameOfOutputFile(){
+		return this.inputContent.get(Constants.STRING_TO_IDENTIFY_OUTPUT_FILE);
+	}
 	
 	/**
 	 * 
@@ -289,7 +325,6 @@ public class ConstructSearchCommand {
 		File template = new File("templates/omssa_template.txt");
 		File allowedKeyword = new File("resources/omssaKeywords.txt");
 		String inputDelimiter = "=";
-		String searchEngineName = Constants.OMSSA_ID;
 		
 		File umodFile								= new File("resources/UMOD_TABLE.csv"); 
 		String umodFileDelimiter					= ",";	
@@ -297,13 +332,15 @@ public class ConstructSearchCommand {
 		File enzymeFile							    = new File("resources/enzymeList.csv"); 
 		String enzymeFileDelimiter					= "=";
 
-		
+		String searchEngineName = Constants.OMSSA_ID;
 		ConstructSearchCommand cs = new ConstructSearchCommand(input,template,allowedKeyword,inputDelimiter,
 																umodFile, umodFileDelimiter, 
 																omssaIdentifierInHeaderInUmodFile,
 																enzymeFile, enzymeFileDelimiter);
 				
 		String command = cs.accpetInputAndCreateCommand(searchEngineName);
+		String outputFileProduced = cs.getNameOfOutputFile();
+		
 		
 		// For X!Tandem
 		log.info("Constructing command for X!Tandem...");
@@ -316,7 +353,7 @@ public class ConstructSearchCommand {
 										enzymeFile, enzymeFileDelimiter);
 
 		command = cs.accpetInputAndCreateCommand(searchEngineName);
-		
+		outputFileProduced = cs.getNameOfOutputFile();
 		
 	}
 
