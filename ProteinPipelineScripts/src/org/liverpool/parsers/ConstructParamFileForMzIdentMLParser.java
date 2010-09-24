@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.liverpool.utils.InputCleaning;
 import org.liverpool.utils.ReadConfigurationFiles;
 import org.liverpool.utils.ReadUmodTable;
 import org.liverpool.utils.ResolveOmssaModificationIdentifiers;
@@ -53,25 +54,25 @@ public class ConstructParamFileForMzIdentMLParser {
 	 * @param omssaIdentifierInHeaderInUmodFile
 	 * @paramKeywordFile                    - The keyword file for Param file creation.
 	 */
-	public ConstructParamFileForMzIdentMLParser(String searchEngineInput,String searchFileDelimiter, 
-												String parserConfigurationInput, String parserFileDelimiter,
-												String umodFile, String umodFileDelimiter,
+	public ConstructParamFileForMzIdentMLParser(File searchEngineInput,String searchFileDelimiter, 
+												File parserConfigurationInput, String parserFileDelimiter,
+												File umodFile, String umodFileDelimiter,
 												String omssaIdentifierInHeaderInUmodFile,
-												String enzymeFile,
+												File enzymeFile,
 												String enzymeFileDelimiter,
-												String paramKeywordFile) {
+												File paramKeywordFile) {
 		try{
-			searchEngineInputFile = new File(searchEngineInput);
-			parserConfigurationInputFile = new File(parserConfigurationInput);
+			searchEngineInputFile = searchEngineInput;
+			parserConfigurationInputFile = parserConfigurationInput;
 			seDelimiter = searchFileDelimiter;
 			parserDelimiter = parserFileDelimiter;
-			this.umodFile =  new File(umodFile);
+			this.umodFile =  umodFile;
 			this.umodFileDelimiter = umodFileDelimiter;
 			this.omssaIdentifierInHeaderInUmodFile = omssaIdentifierInHeaderInUmodFile;
-			this.enzymeFile = new File(enzymeFile);
+			this.enzymeFile = enzymeFile;
 			this.enzymeFileDelimiter = enzymeFileDelimiter;
 			
-			this.paramKeywordFile = new File(paramKeywordFile);
+			this.paramKeywordFile = paramKeywordFile;
 			
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
 			searchInputContent = rc.readInputCsvFile(searchEngineInputFile, seDelimiter); 
@@ -105,6 +106,7 @@ public class ConstructParamFileForMzIdentMLParser {
 	 * need to remove the string -te, -mf etc from the search engine input 
 	 * content. 
 	 */
+	/*
 	void cleanTheSearchEngineInputFromExtraFlags(){
 		Iterator<String> keys = this.searchInputContent.keySet().iterator();
 		while(keys.hasNext()){
@@ -115,6 +117,7 @@ public class ConstructParamFileForMzIdentMLParser {
 		}
 	}
 	
+	*/
 	/**
 	 * Fill the Hash with values needed to create the Param File.
 	 * @return
@@ -122,7 +125,10 @@ public class ConstructParamFileForMzIdentMLParser {
 	public HashMap<String,String> fillKeywordParametersForParamFile(){
 		try{	
 			
-			cleanTheSearchEngineInputFromExtraFlags(); 							// clean the search engine input format
+			InputCleaning ic = new InputCleaning();
+			this.searchInputContent = ic.cleanTheSearchEngineInputFromExtraFlags(this.searchInputContent);
+			
+			//cleanTheSearchEngineInputFromExtraFlags(); 							// clean the search engine input format
 			
 			ResolveOmssaModificationIdentifiers rom = new ResolveOmssaModificationIdentifiers(this.searchEngineInputFile, this.seDelimiter,
 																	this.umodFile,this.umodFileDelimiter,
@@ -195,6 +201,8 @@ public class ConstructParamFileForMzIdentMLParser {
 		
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
 			String paramFileTemplate = rc.readTemplateCommandFile(templateCommandFile);
+			
+			fillKeywordParametersForParamFile();
 		
 			String filledTemplate = fillTheCommandTemplate(this.paramKeyValueHash, paramFileTemplate);
 			out.write(filledTemplate);
@@ -215,15 +223,15 @@ public class ConstructParamFileForMzIdentMLParser {
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
 
-		String searchEngineInput 					= "inputFiles/omssa_inputFile.txt";
+		File searchEngineInput 						= new File("inputFiles/omssa_inputFile.txt");
 		String searchFileDelimiter 					= "="; 
-		String parserConfigurationInput				= "inputFiles/mzIdentMLParser_inputFile.txt";
+		File parserConfigurationInput				= new File("inputFiles/mzIdentMLParser_inputFile.txt");
 		String parserFileDelimiter					= "=";
-		String umodFile								= "resources/UMOD_TABLE.csv"; 
+		File umodFile								= new File("resources/UMOD_TABLE.csv"); 
 		String umodFileDelimiter					= ",";	
 		String omssaIdentifierInHeaderInUmodFile	= "Omssa_ID";	
-		String paramKeywordFile 					= "resources/paramKeywords.txt";
-		String enzymeFile							= "resources/enzymeList.csv"; 
+		File paramKeywordFile 						= new File("resources/paramKeywords.txt");
+		File enzymeFile								= new File("resources/enzymeList.csv"); 
 		String enzymeFileDelimiter					= "=";
 		
 		ConstructParamFileForMzIdentMLParser cp = new ConstructParamFileForMzIdentMLParser(searchEngineInput,searchFileDelimiter, 
