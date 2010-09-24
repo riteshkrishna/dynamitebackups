@@ -113,6 +113,11 @@ public class CallMultipleSearchMethod {
 		args[6] = this.outputFile;
 		args[7] = this.debugFile;
 		
+		log.info("Arguments for multipleSearch : " + args[0] + ", " + args[1] 
+		                                       + ", "+ args[2] + ", " + args[3]
+		                                       + ", "+ args[4] + ", " + args[5] 
+		                                       + ", "+ args[6] + ", " + args[7]);
+		
 		try{
 			String [] searchEngineNames = {args[1],args[3]};
 			CombineSearchEngines cs = new CombineSearchEngines(searchEngineNames);
