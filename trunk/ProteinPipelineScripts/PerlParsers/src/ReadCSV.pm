@@ -203,7 +203,7 @@ sub ParseCSV{
 				#Omssa has a bug in that it doesn't always correctly parse out the accessions	
 				
 				#if ($prot_acc =~ /^-?\d/){	#if $cells[6] holds a number, Omssa has failed to parse accessions - this code was causing a bug for some non-numeric accessions, fixed by ARJ July 1st 2010
-				if ($prot_acc =~ /^[+-]?\d+$/){
+			#RK	if ($prot_acc =~ /^[+-]?\d+$/){
 				
 					my $prev_prot_acc = $prot_acc;
 					my @split_prot = split/ /,$defline;
@@ -212,10 +212,10 @@ sub ParseCSV{
 					if(!$prot_acc){	#Fall back position to avoid fatal errors if possible
 						$prot_acc = $prev_prot_acc;
 					}
-				}
-				else{
-					$prot_acc = $cells[$mapped_columns{"prot_acc"}];
-				}
+			#RK	}
+			#RK	else{
+			#RK		$prot_acc = $cells[$mapped_columns{"prot_acc"}];
+			#RK	}
 				
 				if(!$prot_acc){
 					die "Fatal error: no protein accession for peptide $seq near line: $line_index\n";
