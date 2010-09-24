@@ -30,10 +30,10 @@ public class ConstructMzIdentMLParserCommand {
 	 * @param pathOfConfigFile
 	 * @param delimiter
 	 */
-	public void getTheExternalProgramInfo(String pathOfConfigFile,String delimiter) {
+	public ConstructMzIdentMLParserCommand(File pathOfConfigFile,String delimiter) {
 		
 		try{
-			configFileWithPathsForExternalCalls = new File(pathOfConfigFile);
+			configFileWithPathsForExternalCalls = pathOfConfigFile;
 			ReadConfigurationFiles rc = new ReadConfigurationFiles();
 			HashMap <String, String> inputs = rc.readInputCsvFile(configFileWithPathsForExternalCalls,delimiter);
 			
@@ -90,11 +90,11 @@ public class ConstructMzIdentMLParserCommand {
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
 		
-		String pathOfConfigFile = "resources/externalSetup.conf";
+		File pathOfConfigFile = new File("resources/externalSetup.conf");
 		String delimiter 		= "=";
 		
-		ConstructMzIdentMLParserCommand cmp = new ConstructMzIdentMLParserCommand();
-		cmp.getTheExternalProgramInfo(pathOfConfigFile, delimiter);
+		ConstructMzIdentMLParserCommand cmp = new ConstructMzIdentMLParserCommand(pathOfConfigFile, delimiter);
+		//cmp.getTheExternalProgramInfo(pathOfConfigFile, delimiter);
 		
 		// For csv2mzIdentML
 		String searchEngineKeyword = "omssa_parserMzIdentML"; 
