@@ -14,6 +14,8 @@ import org.liverpool.utils.ReadConfigurationFiles;
 import org.liverpool.utils.ResolveOmssaModificationIdentifiers;
 import org.liverpool.utils.ValidateInputFiles;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+
 public class ConstructSearchCommand {
 
 	static Logger log = Logger.getLogger(ConstructSearchCommand.class);
@@ -181,18 +183,9 @@ public class ConstructSearchCommand {
 		String command = new String(templateCommand);
 		
 		try{
+			// Remove all -te, -to etc strings from the input content
 			InputCleaning ic = new InputCleaning();
 			inputHash = ic.cleanTheSearchEngineInputFromExtraFlags(inputHash);
-			/*
-			// Remove all -te, -to etc strings from the input content
-			Iterator<String> keys = inputHash.keySet().iterator();
-			while(keys.hasNext()){
-				String key = keys.next();
-				String [] value = inputHash.get(key).split("\\s"); // split the value for space
-				if(value.length > 1)
-					inputHash.put(key, value[1]);
-			}	
-			*/
 			
 			// Resolve the mode identifiers
 			ResolveOmssaModificationIdentifiers rom = new ResolveOmssaModificationIdentifiers(this.inputFile, this.inputFileDelimiter,
@@ -214,8 +207,8 @@ public class ConstructSearchCommand {
 			String precursor_tol = null;
 			
 			HashMap <String, String> enzymeFileContent = rc.readInputCsvFile(this.enzymeFile, this.enzymeFileDelimiter);
-			Iterator<String> keys = null;
-			keys = inputHash.keySet().iterator();
+			Iterator<String> keys = inputHash.keySet().iterator();
+			
 			while(keys.hasNext()){
 				String key = keys.next(); 
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_ENZYME)){
@@ -228,6 +221,7 @@ public class ConstructSearchCommand {
 					missedCleavages = inputHash.get(key);
 					String xmlForMissedCleavages = "<note type = \"input\" label = \"scoring, maximum missed cleavages sites\">" + missedCleavages + "</note>";
 					inputHash.put(key, xmlForMissedCleavages);
+					log.info("XML for missed cleavages" + xmlForMissedCleavages);
 				}
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_PRODUCT)){
 					product_tol = inputHash.get(key);
@@ -235,15 +229,18 @@ public class ConstructSearchCommand {
 												 + "\t<note type = \"input\" label = \"spectrum, fragment monoisotopic mass error\">" + product_tol + "</note> \n" 
 												 + "\t<note type=\"input\" label=\"spectrum, fragment monoisotopic mass error units\">Da</note>" ;
 					inputHash.put(key, xmlForFragmentMass);
+					log.info("XML for Fragment mass" + xmlForFragmentMass);
 				}
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_PRECURSOR)){
 					precursor_tol = inputHash.get(key);
-					String xmlForParenttMass = "<note type=\"input\" label=\"spectrum, parent monoisotopic mass error plus\">"  + precursor_tol  + "</note> \n"
+					String xmlForParentMass = "<note type=\"input\" label=\"spectrum, parent monoisotopic mass error plus\">"  + precursor_tol  + "</note> \n"
 											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error minus\">"+ precursor_tol + "</note> \n"
 											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">ppm</note> \n"
 											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass isotope error\">yes</note>";
-					inputHash.put(key, xmlForParenttMass);
+					inputHash.put(key, xmlForParentMass);
+					log.info("XML for Parent mass" + xmlForParentMass );
 				}
+				
 				
 				// Create the taxonomy file
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_TAXONOMY_FILE)){
@@ -258,7 +255,8 @@ public class ConstructSearchCommand {
 													  "<file format=\"peptide\" URL=\"{{ "+ Constants.STRING_TO_IDENTIFY_FASTA_FILE +" }}\" />" +
 													  "</taxon>" +
 													  "</bioml>";
-							String taxonomyContent = fillTheCommandTemplate(inputHash,taxonomyTemplate);
+							HashMap<String,String> inputHashCopy = new HashMap<String,String>(inputHash);
+							String taxonomyContent = fillTheCommandTemplate(inputHashCopy,taxonomyTemplate);
 							taxonomyContent = removeExtraPalceholdersFromTemplate(taxonomyContent);
 							BufferedWriter br = new BufferedWriter(new FileWriter(taxonomyFile));
 							br.write(taxonomyContent);
