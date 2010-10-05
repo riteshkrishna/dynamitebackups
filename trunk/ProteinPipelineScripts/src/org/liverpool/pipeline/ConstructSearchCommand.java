@@ -208,13 +208,20 @@ public class ConstructSearchCommand {
 			
 			HashMap <String, String> enzymeFileContent = rc.readInputCsvFile(this.enzymeFile, this.enzymeFileDelimiter);
 			Iterator<String> keys = inputHash.keySet().iterator();
+			int entryFlag = 0; // To ensure that the mod part is processed only once
 			
 			while(keys.hasNext()){
 				String key = keys.next(); 
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_ENZYME)){
 						enzyme = enzymeFileContent.get(inputHash.get(key));
-						//TODO create xml string here and put in the hash - WHAT IS THE XML FOR X!TANDEM
-						// Construct xml snippet for  - {{ enzyme_name }}
+						
+						//TODO - At present, we have support for only Trypsin.It should be possible to
+						// provide support for other enzymes as well, if we know the regular expression for 
+						// other enzymes.
+						if(enzyme.contains("Trypsin")){
+							String xmlForEnzyme = "<note type=\"input\" label=\"protein, cleavage site\">[KR]|{P}</note> ";
+							inputHash.put(key, xmlForEnzyme);
+						}
 						
 				}
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MISSED_CLEAVAGES)){
@@ -235,12 +242,47 @@ public class ConstructSearchCommand {
 					precursor_tol = inputHash.get(key);
 					String xmlForParentMass = "<note type=\"input\" label=\"spectrum, parent monoisotopic mass error plus\">"  + precursor_tol  + "</note> \n"
 											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error minus\">"+ precursor_tol + "</note> \n"
-											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">ppm</note> \n"
+											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass error units\">Da</note> \n"
 											  + "\t<note type=\"input\" label=\"spectrum, parent monoisotopic mass isotope error\">yes</note>";
 					inputHash.put(key, xmlForParentMass);
 					log.info("XML for Parent mass" + xmlForParentMass );
 				}
-				
+
+				// If we have already processed the modification, then do nothing
+				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT) && (entryFlag == 1)){
+					inputHash.put(key,"");
+				}
+				// Otherwise, process the information...
+				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT) && (entryFlag == 0)){
+					try{
+						String xmlForFixedAndVarModification = new String();	
+						String [] modifications = modificationString.split(lineDelimiter);
+						for(int i = 0; i < modifications.length; i++){
+							String xmlForMod = null;
+							String [] thisMod = modifications[i].split(","); // Each record is comma separated
+							String varOrFixed = thisMod[4];
+							String site = thisMod[3]; 
+							String massDelta = thisMod[5];
+							if(varOrFixed.equalsIgnoreCase("TRUE")){
+								if(site.contains("term"))
+									xmlForMod = "\t<note type=\"input\" label=\"residue, modification mass\">" + massDelta.concat("@").concat("[") + "</note>";
+								else
+									xmlForMod = "\t<note type=\"input\" label=\"residue, modification mass\">" + massDelta.concat("@").concat(site) + "</note>";
+							}else{
+								xmlForMod = "\t<note type=\"input\" label=\"residue, potential modification mass\">" + massDelta.concat("@").concat(site) + "</note>";
+							}
+							if(xmlForMod != null)
+								xmlForFixedAndVarModification = xmlForFixedAndVarModification + "\n"+ xmlForMod;
+						}
+						
+						entryFlag = 1;
+						inputHash.put(key, xmlForFixedAndVarModification);
+						log.info("XML for Modifications " + xmlForFixedAndVarModification );
+						
+					}catch(Exception e){
+						log.info("Problem in finding information for Modification");
+					}
+				}
 				
 				// Create the taxonomy file
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_TAXONOMY_FILE)){
