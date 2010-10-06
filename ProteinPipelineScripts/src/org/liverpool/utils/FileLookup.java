@@ -11,13 +11,13 @@ public class FileLookup {
 	
 	/**
 	 * X!Tandem has it's own way of naming files, so we need to look for the actual name of the file
-	 * produced with the help of the input fileNameToLookFor
+	 * produced with the help of the fileNameToLookFor
 	 * 
 	 * @param dirToStoreTempFile
 	 * @param fileNameToLookFor
 	 * @return
 	 */
-	public String retrieveTheFileProducedByTandem(String dirToStoreTempFile, String fileNameToLookFor){
+	public String retrieveTheFileProducedByTandem(String dirToStoreTempFile,String fileNameToLookFor){
 		
 		String actualName = null;  
 		fileNameToLookFor	= (new File(fileNameToLookFor)).getName().split("\\.")[0];
@@ -32,14 +32,14 @@ public class FileLookup {
 		File [] xmlFiles = dir.listFiles(filter);
 		
 		for(int i = 0 ; i < xmlFiles.length ; i++){
-			if(xmlFiles[i].getName().contains(fileNameToLookFor)){
+			if(xmlFiles[i].getName().contains(fileNameToLookFor) ){
 				actualName = xmlFiles[i].getAbsolutePath();
 				break;
 			}
 		}
 		
 		if(actualName == null){
-			log.fatal("Unable to find the file produced by X!Tandem. Looking for - " + fileNameToLookFor);
+			log.fatal("Unable to find the file produced by X!Tandem. Looking for Tag - " + fileNameToLookFor);
 		}
 		return actualName;
 	}
