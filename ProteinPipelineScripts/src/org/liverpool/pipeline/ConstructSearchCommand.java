@@ -173,8 +173,6 @@ public class ConstructSearchCommand {
 		
 	/**
 	 * Special processing is required for X!Tandem
-	 * 
-	 * TODO - We need to create Taxonomy file + need to fill the inputHash with the file location
 	 *  
 	 * @return
 	 */
@@ -193,12 +191,7 @@ public class ConstructSearchCommand {
 												  this.omssaIdentifierInHeaderInUmodFile);
 			int [][]modArray = rom.omssaModificationsFromSearchInput();
 			String lineDelimiter = "\n";
-			String modificationString = rom.resolveOmssaModificationNumbers(modArray,lineDelimiter);
-			// TODO create xml string here and put in the hash for fixed, variable mod keys
-			// - WHAT IS THE XML FOR X!TANDEM
-			// Construct xml snippet for  - {{ fixed_mod_id }} 
-			// Construct xml snippet for  - {{ variable_mod_id }}
-			
+			String modificationString = rom.resolveOmssaModificationNumbers(modArray,lineDelimiter);	
 			
 			// Resolve all other identifier
 			String enzyme = null;
@@ -312,14 +305,19 @@ public class ConstructSearchCommand {
 						}
 				}
 				
-				// Make sure that the output file has xml extension
+				// Make sure that the output file has xml extension...and also a unique identifier
 				if(key.contains(Constants.STRING_TO_IDENTIFY_OUTPUT_FILE)){
+					// Generate a random number between 2000 to 3000
+					int Min = 2000,Max = 3000;
+					int rand = Min + (int)(Math.random() * ((Max - Min) + 1));
+					String randomNumberIdentifier = Integer.toString(rand);
+					
 					String xmlOutputFile = "";
 					String presentName = inputHash.get(key);
 					String [] name_ext = presentName.split("\\.");
 					if(name_ext.length != 0){
-						xmlOutputFile = name_ext[0].concat(".xml");
-					}else xmlOutputFile = presentName.concat(".xml");
+						xmlOutputFile = name_ext[0].concat(randomNumberIdentifier).concat(".xml");
+					}else xmlOutputFile = presentName.concat(randomNumberIdentifier).concat(".xml");
 					
 					inputHash.put(key, xmlOutputFile);
 				}
