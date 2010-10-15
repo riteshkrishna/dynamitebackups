@@ -83,12 +83,34 @@ public class Pipeline {
 		
 		Pipeline pipeline = new Pipeline();
 		
+		/*
 		String dirToStoreTempFile 					= "/Users/riteshk/Ritesh_Work/TestSpace/pipeline_test";
 		File input 									= new File("inputFiles/omssa_inputFile.txt");
 		String inputDelimiter 						= "=";
 		File parserConfigurationInput				= new File("inputFiles/mzIdentMLParser_inputFile.txt");
 		String parserFileDelimiter					= "=";
+		*/
+		if(args.length != 5){
+			System.out.println("Arguments needed : dirToStoreProducedFiles input.txt inputFileDelimiter parserInput.txt parserFileDelimiter");
+			System.exit(0);
+		}
 		
+		String dirToStoreTempFile = null;
+		File input = null;
+		String inputDelimiter = null;
+		File parserConfigurationInput = null;
+		String parserFileDelimiter = null;
+		
+		try{
+			dirToStoreTempFile 					    = args[0];
+			input 									= new File(args[1]);
+			inputDelimiter 					 	    = args[2];
+			parserConfigurationInput				= new File(args[3]);
+			parserFileDelimiter					    = args[4];
+		}catch(NullPointerException e){
+			log.fatal("Unable to open input File(s)");
+			System.exit(0);
+		}
 		/******************************************************************/
 		// Construct omssa command - store file
 		/******************************************************************/
