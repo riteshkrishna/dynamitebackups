@@ -7,8 +7,8 @@
 	<note type="input" label="spectrum, path">{{ input_file }}</note>
 	<note type="input" label="output, path">{{ output_file }}</note>
 	{{ missed_cleavages }}
-	{{ enzyme_name }}
-	{{ fixed_mod_id }} 
+	{{ enzyme_name }} 
+	{{ fixed_mod_id }}
 	{{ variable_mod_id }}
 	{{ product_tolerance }} 
 	{{ precursor_tolerance }}
