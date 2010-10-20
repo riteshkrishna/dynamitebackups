@@ -173,13 +173,26 @@ public class RunPipelineForWholeDirectory {
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
 		
+		/*
 		String inputTemplate = "inputFiles/inputFileTemplate.txt";
-		String inputMgfDir = "/Users/riteshk/Ritesh_Work/Toxo/Toxo_1D_Dataset";
+		String inputMgfDir = "/Users/riteshk/Ritesh_Work/Toxo/Toxo_Test_MSDataset";
 		String outputMgfDir = "/Users/riteshk/Ritesh_Work/TestSpace/pipeline_test/tmp";
 		
 		String inputDelimiter = "=";
 		String parserInputFile = "inputFiles/mzIdentMLParser_inputFile.txt";
 		String parserDelimiter = "=";
+		*/
+		if(args.length != 6){
+			System.out.println("Arguments needed : inputTemplateFile inputMgfDir outputMgfDir inputDelimiter parserInputFile parserFileDelimiter");
+			System.exit(0);
+		}
+		
+		String inputTemplate   = args[0];
+		String inputMgfDir     = args[1];
+		String outputMgfDir    = args[2];
+		String inputDelimiter  = args[3];
+		String parserInputFile = args[4];
+		String parserDelimiter = args[5];
 		
 		RunPipelineForWholeDirectory rp = new RunPipelineForWholeDirectory(inputTemplate,inputMgfDir,outputMgfDir,inputDelimiter,parserInputFile,parserDelimiter);
 		ArrayList<String[]> comds = rp.createPipelineCommands();
