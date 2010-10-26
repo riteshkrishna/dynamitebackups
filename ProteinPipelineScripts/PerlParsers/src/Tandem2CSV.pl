@@ -172,12 +172,14 @@ sub getProteinDetails{
 			foreach my $domain (@domains){
 				my %domain = %{$domain};						
 				my %res = %{getOneResult(\%domain)};
-				$res{'Accession'} = $protein{'label'};
+				#$res{'Accession'} = $protein{'label'};
+				$res{'Defline'} = $protein{'label'};
+				
 
 				#DCW (140410)
-				if($res{'Accession'} =~ /,/)
+				if($res{'Defline'} =~ /,/)
 				{
-					$res{'Accession'} = "\"".$res{'Accession'} ."\"";
+					$res{'Defline'} = "\"".$res{'Accession'} ."\"";
 				}
 					
 				push(@results,\%res);
