@@ -222,7 +222,8 @@
         #print OUTFILE ">" . $accession . " Random sequence, was " . $description . $eol;
         # RK
         if($os_ eq "linux"){
-        	print OUTFILE ">" . $title . $eol; 
+        	#print OUTFILE ">" . $title . $eol; 
+        	print OUTFILE ">" . $accession . " Random sequence, was " . $description . $eol;
         }else{
         	print OUTFILE ">" . $accession . $eol; 
         }
@@ -230,7 +231,8 @@
         #print OUTFILE ">###RND###" . $accession . " Random sequence, was " . $description . $eol;
          # RK
         if($os_ eq "linux"){
-        	print OUTFILE ">###RND###" . $title . $eol; # RK
+        	#print OUTFILE ">###RND###" . $title . $eol; # RK
+        	print OUTFILE ">###RND###" . $accession . " Random sequence, was " . $description . $eol;
         }else{
         	print OUTFILE ">###RND###" . $accession . $eol; # RK
         }
@@ -252,7 +254,8 @@
 			#print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
 			# RK
         	if($os_ eq "linux"){
-        		print OUTFILE ">" . $title . $eol; 
+        		#print OUTFILE ">" . $title . $eol; 
+        		print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
         	}else{
         		print OUTFILE ">" . $accession . $eol; 
         	}
@@ -268,7 +271,8 @@
 			#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
 			# RK
         	if($os_ eq "linux"){
-        		print OUTFILE ">Rev" . $title . $eol;	#RK
+        		#print OUTFILE ">Rev" . $title . $eol;	#RK
+        		print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
 	        }else{
 				print OUTFILE ">Rev" . $accession . $eol;	#RK
         	}
@@ -369,6 +373,7 @@
 			#print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
 			# RK
         	if($os_ eq "linux"){
+        		#print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
         		print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
         	}else{
 				print OUTFILE ">" . $accession. $eol;	#RK
@@ -436,7 +441,8 @@
         
         # RK
         if($os_ eq "linux"){
-        	print OUTFILE ">" . $title . $eol; 
+        	#print OUTFILE ">" . $title . $eol; 
+        	print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
         }else{
         	print OUTFILE ">" . $accession . $eol; # RK
         }
@@ -453,7 +459,8 @@
         #print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
         # RK
         if($os_ eq "linux"){
-        	print OUTFILE ">Rev" . $title .  $eol; #RK
+        	#print OUTFILE ">Rev" . $title .  $eol; #RK
+        	print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
         }else{
         	print OUTFILE ">Rev" . $accession .  $eol; #RK
         }
