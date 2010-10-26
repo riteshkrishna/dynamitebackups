@@ -108,6 +108,14 @@
     die "Error: cannot combine --append and --keep_accessions";
   }
   
+ # Determine the operating system
+ my $os_ = $^O;
+ 
+ if($os_ eq "linux"){
+	 print "\n 2. Linux trap : Operating syst : $os_";
+	 <STDIN>;
+ }
+
 # so far so good, try to open input and output files
   if ($append) { 
     open (INFILE,  "+<$inFile")          || die "Error: cannot open input file";
@@ -217,10 +225,20 @@
     if ($random) {
       if ($keep_accessions) {
         #print OUTFILE ">" . $accession . " Random sequence, was " . $description . $eol;
-        print OUTFILE ">" . $accession . $eol; # RK
+        # RK
+        if($os_ eq "linux"){
+        	print OUTFILE ">" . $title . $eol; 
+        }else{
+        	print OUTFILE ">" . $accession . $eol; 
+        }
       } else {
         #print OUTFILE ">###RND###" . $accession . " Random sequence, was " . $description . $eol;
-        print OUTFILE ">###RND###" . $accession . $eol; # RK
+         # RK
+        if($os_ eq "linux"){
+        	print OUTFILE ">###RND###" . $title . $eol; # RK
+        }else{
+        	print OUTFILE ">###RND###" . $accession . $eol; # RK
+        }
       }
     # create random sequence
       my $len = length($seq);
@@ -237,7 +255,12 @@
 	elsif($reverseTryptic){
 		if ($keep_accessions) {
 			#print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-			print OUTFILE ">" . $accession . $eol; # RK
+			# RK
+        	if($os_ eq "linux"){
+        		print OUTFILE ">" . $title . $eol; 
+        	}else{
+        		print OUTFILE ">" . $accession . $eol; 
+        	}
 		} 
 		else {	  
 			if($accession  =~ s/IPI://){		#Remove IPI: prefix, and extract only the first of a series of | separated accessions	
@@ -248,7 +271,12 @@
 		  
 			#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;
 			#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-			print OUTFILE ">Rev" . $accession . $eol;	#RK
+			# RK
+        	if($os_ eq "linux"){
+        		print OUTFILE ">Rev" . $title . $eol;	#RK
+	        }else{
+				print OUTFILE ">Rev" . $accession . $eol;	#RK
+        	}
 		}
 		
 		# create reversed sequence
@@ -344,9 +372,14 @@
 			}
 		  
 			#print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
-			print OUTFILE ">" . $accession. $eol;	#RK
-
-
+			# RK
+        	if($os_ eq "linux"){
+        		print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
+        		print "\n 1";
+        		#<STDIN>;
+        	}else{
+				print OUTFILE ">" . $accession. $eol;	#RK
+        	}
 		}
 		
 		# create random peptide sequences
@@ -407,7 +440,13 @@
       
 	  if ($keep_accessions) {
         #print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-        print OUTFILE ">" . $accession . $eol; # RK
+        
+        # RK
+        if($os_ eq "linux"){
+        	print OUTFILE ">" . $title . $eol; 
+        }else{
+        	print OUTFILE ">" . $accession . $eol; # RK
+        }
       } 
 	  else {
 	  
@@ -419,7 +458,12 @@
 	  
 		#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;
         #print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-        print OUTFILE ">Rev" . $accession .  $eol; #RK
+        # RK
+        if($os_ eq "linux"){
+        	print OUTFILE ">Rev" . $title .  $eol; #RK
+        }else{
+        	print OUTFILE ">Rev" . $accession .  $eol; #RK
+        }
       }
     # create reversed sequence
       $seq = reverse $seq;

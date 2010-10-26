@@ -22,6 +22,9 @@ $outputfile 	 = $ARGV[2];
 
 print "\n $annotation_file \t $decoy_ratio \t $outputfile \n";
 
+# Determine the operating system
+my $os_ = $^O;
+ 
 my @tempFiles = ();
 for(my $i = 0; $i < $decoy_ratio ; $i++){
 	my $tempFile = "temp".($i+1).".fasta";
@@ -68,7 +71,11 @@ while (<INFILE>) {
     $seq =~ tr/a-zA-Z//cd;
 	$seq = uc($seq);
     
-    print OUTFILE ">" . $accession . $eol; # RK
+    if($os_ eq "linux"){
+        	print OUTFILE ">" . $title . $eol; 
+    }else{
+        	print OUTFILE ">" . $accession . $eol; # RK
+    }   
     print OUTFILE $seq . $eol; # RK       
  }
  
@@ -86,7 +93,11 @@ foreach my $tempfile(@tempFiles){
     	$seq =~ tr/a-zA-Z//cd;
 		$seq = uc($seq);
     
-    	print OUTFILE ">" . $accession . $eol; # RK
+		if($os_ eq "linux"){
+        	print OUTFILE ">" . $title . $eol; 
+    	}else{
+        	print OUTFILE ">" . $accession . $eol; # RK
+    	}    	
     	print OUTFILE $seq . $eol; # RK       
  	}
  	close(INFILE);
