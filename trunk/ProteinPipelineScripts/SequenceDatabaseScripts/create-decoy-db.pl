@@ -111,11 +111,6 @@
  # Determine the operating system
  my $os_ = $^O;
  
- if($os_ eq "linux"){
-	 print "\n 2. Linux trap : Operating syst : $os_";
-	 <STDIN>;
- }
-
 # so far so good, try to open input and output files
   if ($append) { 
     open (INFILE,  "+<$inFile")          || die "Error: cannot open input file";
@@ -375,8 +370,6 @@
 			# RK
         	if($os_ eq "linux"){
         		print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
-        		print "\n 1";
-        		#<STDIN>;
         	}else{
 				print OUTFILE ">" . $accession. $eol;	#RK
         	}
