@@ -72,7 +72,7 @@ while (<INFILE>) {
 	$seq = uc($seq);
     
     if($os_ eq "linux"){
-        	print OUTFILE ">" . $title . $eol; 
+        	print OUTFILE ">" . $accession . " ". $accession . $eol;
     }else{
         	print OUTFILE ">" . $accession . $eol; # RK
     }   
@@ -93,8 +93,8 @@ foreach my $tempfile(@tempFiles){
     	$seq =~ tr/a-zA-Z//cd;
 		$seq = uc($seq);
     
-		if($os_ eq "linux"){
-        	print OUTFILE ">" . $title . $eol; 
+	if($os_ eq "linux"){
+        	print OUTFILE ">" . $accession . " ". $accession . $eol;
     	}else{
         	print OUTFILE ">" . $accession . $eol; # RK
     	}    	
