@@ -48,41 +48,38 @@
 # get arguments and perform basic error checking
   my($random, $append, $keep_accessions, $inFile, $outFile, $stopCount, $totalDecoyLen, $reverseTryptic, $trypticRandom, $rndAcc);
   for (my $i = 0; $i <= $#ARGV; $i++) {
-    if (lc($ARGV[$i]) eq "--random") {
-      $random = 1;	 
-    } elsif ( lc($ARGV[$i]) eq "--append") {
-	  $append = 1;
+    	if (lc($ARGV[$i]) eq "--random") {
+      		$random = 1;	 
+    	} elsif ( lc($ARGV[$i]) eq "--append") {
+		  $append = 1;
 	} elsif ( lc($ARGV[$i]) eq "--rev_tryptic") {
-      $reverseTryptic = 1;
-    } elsif (lc($ARGV[$i]) eq "--random_tryptic") {
-      $trypticRandom= 1;
-    } 
+      		$reverseTryptic = 1;
+	} elsif (lc($ARGV[$i]) eq "--random_tryptic") {
+      		$trypticRandom= 1;
+    	} 
 	elsif (lc($ARGV[$i]) eq "--keep_accessions") {
-      $keep_accessions = 1;
-    }
+      		$keep_accessions = 1;
+    	}
 	elsif ($ARGV[$i] =~ /^-/) {
-      die "Error: unrecognised argument: " . $ARGV[$i];
-    } elsif (!$inFile) {
-      $inFile = $ARGV[$i];
-    } elsif (!$outFile) {
-      $outFile = $ARGV[$i];
-    } 
+      		die "Error: unrecognised argument: " . $ARGV[$i];
+    	} elsif (!$inFile) {
+      		$inFile = $ARGV[$i];
+    	} elsif (!$outFile) {
+      		$outFile = $ARGV[$i];
+    	} 
 	elsif(!$stopCount){
 		$stopCount = $ARGV[$i];
 	}
 	elsif(!$rndAcc && $trypticRandom){
 		$rndAcc = $ARGV[$i];
 	}
-
-	
 	else {
-      die "Error: too many arguments";
-    }
+      		die "Error: too many arguments";
+    	}
   }
   
   if(!$stopCount){
 	die "Error: count to stop position not set\n";
-	
   }	
   
   
@@ -182,9 +179,7 @@
 			$AACount[10] = 0;
 			$AACount[15] = 0;
 			$AACount[17] = 0;
-	  }
-	  
-	  
+	  }  
     }
 	
 	
@@ -202,188 +197,46 @@
 	while (scalar(@residue) < 10000) {
 	  push @residue, "A";
 	}
-	
-	
   }
+
 
 # set the cursor to start of file + 1 character, (i.e. skip first ">")
   seek(INFILE, 1, 0);
 
 # loop through input file and create the output file
   while (<INFILE>) {
-    my($title, $seq) = split(/$eol/o, $_, 2);
-    my($accession, $description) = split(/\s+/, $title, 2);
-  # remove any non-residue characters from input sequence
-    $seq =~ tr/a-zA-Z//cd;
-	$seq = uc($seq);
-    my @pieces;
-    if ($random) {
-      if ($keep_accessions) {
-        #print OUTFILE ">" . $accession . " Random sequence, was " . $description . $eol;
-        # RK
-        if($os_ eq "linux"){
-        	#print OUTFILE ">" . $title . $eol; 
-        	print OUTFILE ">" . $accession . " Random sequence, was " . $description . $eol;
-        }else{
-        	print OUTFILE ">" . $accession . $eol; 
-        }
-      } else {
-        #print OUTFILE ">###RND###" . $accession . " Random sequence, was " . $description . $eol;
-         # RK
-        if($os_ eq "linux"){
-        	#print OUTFILE ">###RND###" . $title . $eol; # RK
-        	print OUTFILE ">###RND###" . $accession . " Random sequence, was " . $description . $eol;
-        }else{
-        	print OUTFILE ">###RND###" . $accession . $eol; # RK
-        }
-      }
-    # create random sequence
-      my $len = length($seq);
-      $seq = "";
-      for (my $i = 0; $i < $len; $i++) {
-        $seq .= $residue[int(rand 10000)];      
-      }
-    # chop into little pieces for output
-      @pieces = $seq =~ /(.{1,60})/g;
-      foreach (@pieces) {
-        print OUTFILE $_ . $eol;
-      }
-    } 
-	elsif($reverseTryptic){
-		if ($keep_accessions) {
-			#print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-			# RK
-        	if($os_ eq "linux"){
-        		#print OUTFILE ">" . $title . $eol; 
-        		print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-        	}else{
-        		print OUTFILE ">" . $accession . $eol; 
-        	}
-		} 
-		else {	  
-			if($accession  =~ s/IPI://){		#Remove IPI: prefix, and extract only the first of a series of | separated accessions	
-				my @tmp = split(/\|/, $accession);
-				$accession = $tmp[0];			
-				
-			}
-		  
-			#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;
-			#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-			# RK
-        	if($os_ eq "linux"){
-        		#print OUTFILE ">Rev" . $title . $eol;	#RK
-        		print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-	        }else{
-				print OUTFILE ">Rev" . $accession . $eol;	#RK
-        	}
-		}
-		
-		# create reversed sequence
+    	my($title, $seq) = split(/$eol/o, $_, 2);
+    	my($accession, $description) = split(/\s+/, $title, 2);
+    	# remove any non-residue characters from input sequence
+    	$seq =~ tr/a-zA-Z//cd;
+    	$seq = uc($seq);
+    	my @pieces;
 
-		my @peptides = split(/(?<=[KR])/, $seq);
-		
-		my $rev_seq = "";
-		
-		for (my $i=0; $i<@peptides;$i++){
-			my $pep = $peptides[$i];
-			my $rev_string = "";
-			
-			my $revLen = length($pep)-1;
-			my $firstChar = substr($pep,0,1);
-			my $penultChar = substr($pep,length($pep)-2,1);
-			my $lastChar = substr($pep,length($pep)-1,1);				
-			
-			if($revLen > 1){
-							
-				my $startPos = 0;
-				my $endString = $lastChar;
-				my $startString = "";
-				
-				if($firstChar eq "P"){
-					$revLen--;	
-					$startPos++;
-					$startString = "P";
-				}
-				if($penultChar eq "P"){
-					$revLen--;
-					$endString = "P" . $endString;
-				}
-				
-				$rev_string = $startString . reverse (substr($pep,$startPos,$revLen))  . $endString;
-			}
-			else{
-				$rev_string = $pep;
-			}		
-		
-			if($firstChar ne "P" && substr($rev_string,0,1) eq "P"){	#rare case of PPK or PPPK etc in sequences
-				$rev_string = "S" . substr($rev_string,1,length($rev_string)-1) #substitute a serine
-			}			
-			
-			if(length($pep) != length ($rev_string)){
-				print "$pep\n$rev_string\n\n";
-				print "error: no equal peptide length created\n";
-				die;
-			}
-			
-			$rev_seq .= $rev_string;
-		}
-
-		# chop into little pieces for output
-		@pieces = $rev_seq =~ /(.{1,60})/g;
-		
-		foreach (@pieces) {
-			
-			my $nextLen = $totalDecoyLen + length($_);
-			
-			if($nextLen > $stopCount){
-				my $tempLen = $stopCount-$totalDecoyLen;
-				my $tempString = substr($_, 0, $tempLen);
-				print OUTFILE $tempString. $eol;
-				#print "Total reached: $stopCount, next total =  $nextLen \n";
-				
-				print OUTFILE "$eol$eol";
-				exit;
-			}
-			else{			
-				print OUTFILE $_ . $eol;			
-				#print " $totalDecoyLen $stopCount $nextLen \n";
-			}
-			$totalDecoyLen = $nextLen;		
-		}		
-	
-	}
-	elsif($trypticRandom){	#creates a database of the same size, with the same tryptic sites, but with randomly inserted amino acids
+    	if($trypticRandom){	#creates a database of the same size, with the same tryptic sites, but with randomly inserted amino acids
 		if ($keep_accessions) {
 			die "Not implemented yet\n";
 		} 
 		else {	  
-			
-			#This scripts expects databases to have been pre-processed to only have one identifier
-			
+			#This scripts expects databases to have been pre-processed to only have one identifier	
 			if($accession eq "gb"){	#Special case for Toxoplasma database, first accession before | is always gb...
 				my @tmp = split(/\|/, $accession);	#extract only the first of a series of | separated accessions	
 				$accession = $tmp[1];
 			}
 			
-			if($accession =~ s/IPI:/IPI:$rndAcc/){}
+			if($accession =~ s/IPI:/IPI:$rndAcc/){
+			}
 			else{
 				$accession = $rndAcc . $accession;
 			}
-		  
-			#print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
-			# RK
-        	if($os_ eq "linux"){
-        		#print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
-        		print OUTFILE ">$accession $accession Decoy sequence, was " . $description . $eol;	#Accession doubled up since some software has difficulties extracting non-standard accessions
-        	}else{
+        		#if($os_ eq "linux"){
+        		#	print OUTFILE ">" . $accession . " ". $description.$eol;
+        		#}else{
 				print OUTFILE ">" . $accession. $eol;	#RK
-        	}
+        		#}
 		}
 		
 		# create random peptide sequences
-
 		my @peptides = split(/(?<=[KR])/, $seq);
-		
 		my $rnd_seq = "";
 		
 		for (my $i=0; $i<@peptides;$i++){
@@ -408,86 +261,54 @@
 			}
 			
 			$rnd_seq .= $rnd_peptide;
-		}
-
+		}	
+	
 		# chop into little pieces for output
 		@pieces = $rnd_seq =~ /(.{1,60})/g;
 		
 		foreach (@pieces) {
-			
 			my $nextLen = $totalDecoyLen + length($_);
-			
 			if($nextLen > $stopCount){
 				my $tempLen = $stopCount-$totalDecoyLen;
 				my $tempString = substr($_, 0, $tempLen);
 				print OUTFILE $tempString. $eol;
-				#print "Total reached: $stopCount, next total =  $nextLen \n";
-				
 				print OUTFILE "$eol$eol";
 				exit;
 			}
 			else{			
 				print OUTFILE $_ . $eol;			
-				#print " $totalDecoyLen $stopCount $nextLen \n";
 			}
 			$totalDecoyLen = $nextLen;		
 		}
-	
+
 	}
 	else {
-      
-	  if ($keep_accessions) {
-        #print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-        
-        # RK
-        if($os_ eq "linux"){
-        	#print OUTFILE ">" . $title . $eol; 
-        	print OUTFILE ">" . $accession . " Reverse sequence, was " . $description . $eol;
-        }else{
-        	print OUTFILE ">" . $accession . $eol; # RK
-        }
-      } 
-	  else {
-	  
-	  
-		if($accession  =~ s/IPI://){		#Remove IPI: prefix, and extract only the first of a series of | separated accessions	
-			my @tmp = split(/\|/, $accession);
-			$accession = $tmp[0];
-		}
-	  
-		#print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;
-        #print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-        # RK
-        if($os_ eq "linux"){
-        	#print OUTFILE ">Rev" . $title .  $eol; #RK
-        	print OUTFILE ">Rev" . $accession . " Rev" . $accession . " Reverse sequence, was " . $description . $eol;	#Think Omssa cannot extract the accession unless it is doubled up...
-        }else{
-        	print OUTFILE ">Rev" . $accession .  $eol; #RK
-        }
-      }
-    # create reversed sequence
-      $seq = reverse $seq;
-    # chop into little pieces for output
-      @pieces = $seq =~ /(.{1,60})/g;
-      foreach (@pieces) {
-        
-		my $nextLen = $totalDecoyLen + length($_);
-		
-		if($nextLen > $stopCount){
-			my $tempLen = $stopCount-$totalDecoyLen;
-			my $tempString = substr($_, 0, $tempLen);
-			print OUTFILE $tempString. $eol;
-			#print "Total reached: $stopCount, next total =  $nextLen \n";
-			exit;
-		}
-		else{			
-			print OUTFILE $_ . $eol;			
-			#print " $totalDecoyLen $stopCount $nextLen \n";
-		}
-		$totalDecoyLen = $nextLen;
-		
-      }
-    }
+	  	if ($keep_accessions) {
+        		#if($os_ eq "linux"){
+        		#	print OUTFILE ">" . $accession . " ". $description . $eol;
+	        	#}else{
+        			print OUTFILE ">" . $accession . $eol; # RK
+        		#}
+      		} 
+
+   	 	# create reversed sequence
+      		$seq = reverse $seq;
+    		# chop into little pieces for output
+      		@pieces = $seq =~ /(.{1,60})/g;
+	        foreach (@pieces) {     
+			my $nextLen = $totalDecoyLen + length($_);
+			if($nextLen > $stopCount){
+				my $tempLen = $stopCount-$totalDecoyLen;
+				my $tempString = substr($_, 0, $tempLen);
+				print OUTFILE $tempString. $eol;
+				exit;
+			}
+			else{			
+				print OUTFILE $_ . $eol;			
+			}
+			$totalDecoyLen = $nextLen;
+      		}	
+    	}
   }
 
 # if --append, copy output to end of input file and delete temp file
