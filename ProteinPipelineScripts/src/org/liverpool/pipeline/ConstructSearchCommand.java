@@ -314,10 +314,37 @@ public class ConstructSearchCommand {
 					
 					String xmlOutputFile = "";
 					String presentName = inputHash.get(key);
-					String [] name_ext = presentName.split("\\.");
-					if(name_ext.length != 0){
-						xmlOutputFile = name_ext[0].concat(randomNumberIdentifier).concat(".xml");
-					}else xmlOutputFile = presentName.concat(randomNumberIdentifier).concat(".xml");
+					
+					//String [] name_ext = presentName.split("\\.");
+					//if(name_ext.length != 0){
+					//	xmlOutputFile = name_ext[0].concat(randomNumberIdentifier).concat(".xml");
+					//}else xmlOutputFile = presentName.concat(randomNumberIdentifier).concat(".xml");
+					
+					// The above commented code fails if some directory in the path contains '.' in it's name.
+					// So, do a through processing of the string by skipping the slashes and treating on the
+					// last string as the file name - Shweta does this.
+					String fileName1 = "";
+					int lastSlashIndex = presentName.lastIndexOf("/");
+					if(lastSlashIndex > -1){
+						String temp = presentName.substring(lastSlashIndex + 1);
+						int extDotIndex = temp.indexOf(".");
+						if(extDotIndex > -1){
+							fileName1 = presentName.substring(0,presentName.length()-(temp.length()-extDotIndex));
+						}
+						else
+						{
+							fileName1 = presentName;
+						}
+					}else {
+						int extDotIndex = presentName.indexOf(".");
+						if(extDotIndex>-1){
+							fileName1 = presentName.substring(0,extDotIndex);
+						}else {
+							fileName1 = presentName;
+						}
+					}
+					
+					xmlOutputFile = fileName1.concat(randomNumberIdentifier).concat(".xml");	
 					
 					inputHash.put(key, xmlOutputFile);
 				}
