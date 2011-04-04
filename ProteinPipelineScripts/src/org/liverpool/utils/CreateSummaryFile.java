@@ -44,7 +44,7 @@ public class CreateSummaryFile {
 	 * @param inputFile
 	 * @param summaryFile
 	 */
-	CreateSummaryFile(String inputFile, String summaryFile){
+	public CreateSummaryFile(String inputFile, String summaryFile){
 		this.inputFileName = new String(inputFile);
 		this.summaryFileName = new String(summaryFile);
 		
