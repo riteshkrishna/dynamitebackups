@@ -11,6 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.liverpool.multipleSearch.CallMultipleSearchMethod;
 import org.liverpool.parsers.ConstructMzIdentMLParserCommand;
 import org.liverpool.parsers.ConstructParamFileForMzIdentMLParser;
+import org.liverpool.utils.CreateSummaryFile;
 import org.liverpool.utils.FileLookup;
 import org.liverpool.utils.ReadConfigurationFiles;
 
@@ -76,7 +77,7 @@ public class Pipeline {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
@@ -227,13 +228,13 @@ public class Pipeline {
 		ConstructMzIdentMLParserCommand cmp = new ConstructMzIdentMLParserCommand(pipeline.externalSetupFile, pipeline.externalSetupFileDelimiter);
 		
 		String searchEngineKeyword = Constants.OMSSA_KEYWORD;
-		String outputMzIdentMLFile_omssa = dirToStoreTempFile + "/Test_Toxo_1D_Slice43_omssa" + "_" + randomNumberIdentifier +".mzid";
+		String outputMzIdentMLFile_omssa = dirToStoreTempFile + "/From_omssa" + "_" + randomNumberIdentifier +".mzid";
 		String commandparser = cmp.createMzIdentML(searchEngineKeyword, paramFileToCreate_omssa.getAbsolutePath(), outputFileProduced_omssa, outputMzIdentMLFile_omssa);
 		ec = new ExecuteCommands();
 		ec.execute(commandparser);
 		
 		searchEngineKeyword = Constants.TANDEM_KEYWORD;
-		String outputMzIdentMLFile_tandem = dirToStoreTempFile + "/Test_Toxo_1D_Slice43_tandem" + "_" + randomNumberIdentifier +".mzid";
+		String outputMzIdentMLFile_tandem = dirToStoreTempFile + "/From_tandem" + "_" + randomNumberIdentifier +".mzid";
 		commandparser = cmp.createMzIdentML(searchEngineKeyword, paramFileToCreate_tandem.getAbsolutePath(), outputFileProduced_tandem, outputMzIdentMLFile_tandem);
 		ec = new ExecuteCommands();
 		ec.execute(commandparser);
@@ -258,6 +259,15 @@ public class Pipeline {
 																outputFile, debugFile);
 		cm.launchMultipleSearchEngine();
 		
+		// Add the Result Summary part
+		try{
+			String summaryFile =  dirToStoreTempFile + "/Summary_" + "_" + randomNumberIdentifier +".txt";
+			CreateSummaryFile csf = new CreateSummaryFile(outputFile, summaryFile);
+			csf.createTheSummaryFile();	
+		}catch(Exception e){
+			log.fatal("Problem creating the Summary File");
+			throw e;
+		}
 	}
 
 }
