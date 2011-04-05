@@ -140,7 +140,9 @@ public class CreateSummaryOfTheCompleteDataset {
 					if((strLine_2 = randomFile.readLine()) != null){
 						if(strLine_2.contains("\t")){
 							String [] records_next = strLine_2.split("\t");
-							newLine = records_next[0].trim();
+							if(records_next.length != 0)
+								newLine = records_next[0].trim();
+							else newLine = "Get out of the loop !!";
 							System.out.println(" In the loop : " + newLine);
 						}
 					}else{
