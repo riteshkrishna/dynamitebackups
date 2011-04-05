@@ -173,10 +173,14 @@ public class RunPipelinePerMgfForCluster {
 		
 		RunPipelinePerMgfForCluster rp = new RunPipelinePerMgfForCluster(inputTemplate,inputMgfFile,outputMgfDir,inputDelimiter,parserInputFile,parserDelimiter);
 		String [] comd = rp.createPipelineCommands();
-			
-		Pipeline pipeline = new Pipeline();
-		pipeline.main(comd);
 		
+		try{	
+			Pipeline pipeline = new Pipeline();
+			pipeline.main(comd);
+		}catch(Exception e){
+			log.fatal("Pipeline failed...");
+			log.fatal(e.getMessage());
+		}
 	}	
 	
 	

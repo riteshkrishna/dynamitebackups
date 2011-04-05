@@ -169,7 +169,7 @@ public class RunPipelineForWholeDirectory {
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args){
 		String logProperties = "resources/log4j.properties";
 		PropertyConfigurator.configure(logProperties);
 		
@@ -199,8 +199,13 @@ public class RunPipelineForWholeDirectory {
 		for(int i = 0; i < comds.size(); i++){
 			System.out.println(comds.get(i));
 			
-			Pipeline pipeline = new Pipeline();
-			pipeline.main(comds.get(i));
+			try{
+				Pipeline pipeline = new Pipeline();
+				pipeline.main(comds.get(i));
+			}catch(Exception e){
+				log.fatal("Pipeline failed....");
+				log.fatal(e.getMessage());
+			}
 		}
 		
 	}	
