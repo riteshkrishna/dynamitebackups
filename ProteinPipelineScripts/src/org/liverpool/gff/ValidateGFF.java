@@ -1,7 +1,6 @@
 /**
  * This may require some strategic changes.....
  * Read the whole GFF line by line
- * Find all CDS types and remember their line numbers
  * Find unique CDSs by looking at the ID in the description column
  * Extract FASTA sequences for all the CDS - Give error in ##FASTA directive is missing
  * Use the fasta for DB preparation
@@ -68,6 +67,8 @@ public class ValidateGFF {
 			
 			while((line = in.readLine()) != null){
 				
+				//System.out.println(line);
+				
 				if(line.startsWith("##")){
 					if(line.equals("##FASTA")){
 						fastaRegionFlag = true;
@@ -120,7 +121,7 @@ public class ValidateGFF {
 				}else{
 					
 					// Now we are in the FASTA section, so we should have all the cds information
-					//System.out.println("Entering the ##FASTA section...total CDS found - " + cdsRecords.size() + "\t count = " + count++);
+					System.out.println("Entering the ##FASTA section...total CDS found - " + cdsRecords.size() );
 					
 					if(cdsRecords.size() == 0){
 						System.out.println("No CDS field found.....exiting");
@@ -150,6 +151,8 @@ public class ValidateGFF {
 				}
 				
 			} // end of while
+			
+			System.out.println("Out of while loop");
 			
 			// Signal error if no ##FASTA is encountered...
 			if(fastaRegionFlag == false){
@@ -224,29 +227,24 @@ public class ValidateGFF {
 		return id;
 	}
 	
-	/**
+    /**
 	 * 
 	 * @param accnToCheck
 	 * @return
 	 */
     boolean verifyNeededAccnOrNot(String accnToCheck){
     	boolean found = false;
-    	Iterator<String> cdsAccns = cdsRecords.keySet().iterator();
     	
     	// Remove the ">" from accnToCheck
     	if(accnToCheck.contains(">"))
     		accnToCheck = accnToCheck.replace(">", "").trim(); 
-    		
-    	while(cdsAccns.hasNext()){
-    		String accn = cdsAccns.next().trim();
-    		if(accn.equalsIgnoreCase(accnToCheck)){
-    			found = true;
-    			return found;
-    		}
-    	}
-    	// otherwise by default false
+    	
+    	found = cdsRecords.containsKey(accnToCheck);
+    	
     	return found;
     }
+    
+    
     
     
 	/**
@@ -258,7 +256,7 @@ public class ValidateGFF {
 		
 		String gffFile = args[0];
 		ValidateGFF vgf = new ValidateGFF();
-		vgf.processGffFile(gffFile);
+		System.out.println("Fasta File produced -" + vgf.processGffFile(gffFile));
 		
 		System.out.println("Press enter to exit...");
 		System.in.read();
