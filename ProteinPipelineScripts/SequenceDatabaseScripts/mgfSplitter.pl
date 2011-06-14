@@ -1,11 +1,13 @@
 #!/usr/local/bin/perl
-
+#
 # This script is to split a set of MGF files into multiple splices depending on their sizes.
+# The limit is set for 1 million (or till the next "End Ions" tag is found) lines/mgf file.
+#
 # @author - Ritesh Krishna 
 
 use strict;
 
-my $LIMIT = 100000;
+my $LIMIT = 1000000;  
 my $endTag = "END IONS";
 
 my $numArgs = $#ARGV  + 1;
@@ -55,6 +57,7 @@ foreach my $file (@files) {
 				open (OUTFILE, ">$outputMgfDirectory/$outputFile")  || die "Error: cannot open output file";
 				print OUTFILE $chunk;
 				close($outputFile);
+				$chunk = '';
 			}
 		} 
 	}
