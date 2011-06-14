@@ -53,7 +53,7 @@ foreach my $file (@files) {
 			if (index($line,$endTag) >= 0){
 				$lineCounter = 0;
 				$fileCounter++;
-				my $outputFile = $fileCounter + "_$file"; 
+				my $outputFile = $fileCounter . "_$file"; 
 				open (OUTFILE, ">$outputMgfDirectory/$outputFile")  || die "Error: cannot open output file";
 				print OUTFILE $chunk;
 				close($outputFile);
@@ -65,7 +65,7 @@ foreach my $file (@files) {
 	# The last remaining bit which might be less than the LIMIT...
 	if($lineCounter > 0){
 		$fileCounter++;
-		my $outputFile = $fileCounter + "_$file"; 
+		my $outputFile = $fileCounter . "_$file"; 
 		open (OUTFILE, ">$outputMgfDirectory/$outputFile")  || die "Error: cannot open output file";
 		print OUTFILE $chunk;
 		close($outputFile);
