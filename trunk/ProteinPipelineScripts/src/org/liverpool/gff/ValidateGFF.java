@@ -57,7 +57,7 @@ public class ValidateGFF {
 			
 		    // Create temp file for storing the Fasta Sequences in the GFF file.
 			temp = File.createTempFile(nameOfTempFastaFile, extOfTempFastaFile);
-		    temp.deleteOnExit();		   
+		    //temp.deleteOnExit();		   
 		    
 		    BufferedWriter temp_out = new BufferedWriter(new FileWriter(temp));
 			
@@ -100,6 +100,11 @@ public class ValidateGFF {
 						try{
 							startPos = Long.parseLong(start);
 							endPos = Long.parseLong(end);
+							//A simple check...
+							if(endPos < startPos){
+								System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
+								throw new Exception();
+							}
 						}catch(NumberFormatException e){
 							System.out.println("Problem in processing the start and end fields of Line - \n" + line + "\n...exiting");
 							e.printStackTrace();
@@ -302,6 +307,12 @@ public class ValidateGFF {
 						try{
 							startPos = Long.parseLong(start);
 							endPos = Long.parseLong(end);
+							
+							//A simple check...
+							if(endPos < startPos){
+								System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
+								throw new Exception();
+							}
 						}catch(NumberFormatException e){
 							System.out.println("Problem in processing the start and end fields of Line - \n" + line + "\n...exiting");
 							e.printStackTrace();
@@ -342,7 +353,7 @@ public class ValidateGFF {
 				ProteinResults pr = proteinHits.get(i);
 				String mappedGffEntry = mapToGff(pr);
 				if(mappedGffEntry != null)
-					out.write(mappedGffEntry + "\n");
+					out.write(mappedGffEntry);
 				
 			}
 			out.close();			
@@ -418,7 +429,7 @@ public class ValidateGFF {
         			break;
         			
         		}else{
-        			for(int j = i+1; j < cdsColl.size(); j++){
+        			for(int j = i+1; (j < cdsColl.size()) && (foundEnd == false); j++){
         				long cds_start_2 = cdsColl.get(j).getStart();
         	    		long cds_end_2 = cdsColl.get(j).getEnd();
         	    		// Case - Contained across CDS
@@ -428,11 +439,17 @@ public class ValidateGFF {
         	    				matchedIndices.add(cdsColl.get(l));
         	    			break;
         	    		}
+        	    		// Case - falls somewhere after one CDS, but before the next or the last CDS
+        	    		if(mappedEndLocation < cds_start_2){ 
+        	    			foundEnd = true;
+        	    			for (int l = i; l < j ; l++) // Exclude the this CDS, as the range is 'before' the start of this
+        	    				matchedIndices.add(cdsColl.get(l));
+        	    		} 
         			}
         			
         			// Case - Start present inside a CDS, but end present Outside all CDS, so collect all CDS from index i
         			if(!foundEnd){
-        				for (int l = i; l <= cdsColl.size() ; l++)
+        				for (int l = i; l <= cdsColl.size() - 1; l++)
         					matchedIndices.add(cdsColl.get(l));
         			}
         			
@@ -450,6 +467,15 @@ public class ValidateGFF {
     		// Just use the information from the first CDS entry with mapped start and end locations
     		gffEntry = cdsColl.get(0).getSeqID() + "\t" + cdsColl.get(0).getSource() + "\t" + feature + "\t" + mappedStartLocation 
     		+ "\t" + mappedEndLocation + "\t" + score + "\t" + cdsColl.get(0).getSePhase() + "\t" + attr + "\n";
+    		
+    		try{
+    			if(mappedEndLocation < mappedStartLocation){
+    				System.out.println("End location = " + mappedEndLocation + " smaller than start location = " + mappedStartLocation);
+    				throw new Exception();
+    			}
+    		}catch(Exception e){
+    			e.printStackTrace();
+    		}
     		
     		return gffEntry;
     	}
@@ -474,11 +500,33 @@ public class ValidateGFF {
     		}
     		
     		gffEntry = gffEntry + seqId + "\t" + source + "\t" + feature + "\t" + start + "\t" + end 
-    									+ "\t" + score + "\t" + phase + "\t" + attr + "\n";	
+    									+ "\t" + score + "\t" + phase + "\t" + attr + "\n";
+    		
+    		try{
+    			if(end < start){
+    				System.out.println(" - End location = " + end + " smaller than start location = " + start);
+    				throw new Exception();
+    			}
+    		}catch(Exception e){
+    			e.printStackTrace();
+    		}
     	}
     	
     	return gffEntry;
     	
+    }
+    
+    /**
+     * Test function 1
+     * @param args
+     * @throws Exception
+     */
+    public void createFastaFromGFF(String gffFile) throws Exception {
+    	
+		System.out.println("Fasta File produced -" + processGffFileAndCreateFasta(gffFile));		
+		System.out.println("Press enter to exit...");
+		System.in.read();
+		
     }
 	/**
 	 * 
@@ -488,11 +536,23 @@ public class ValidateGFF {
 	public static void main(String [] args) throws Exception{
 		
 		String gffFile = args[0];
-		ValidateGFF vgf = new ValidateGFF();
-		System.out.println("Fasta File produced -" + vgf.processGffFileAndCreateFasta(gffFile));
 		
-		System.out.println("Press enter to exit...");
-		System.in.read();
+		ValidateGFF vgf = new ValidateGFF();
+		
+		// Fasta creation call here
+		//vgf.createFastaFromGFF(gffFile);
+		
+		
+		// GFF writing part here...
+		String summaryFile     		   = args[1];
+		String decoyIdentifier 		   = args[2];
+		String  outputGffFile          = args[3];
+		
+		ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
+		ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
+		
+		vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
+
 	}
 	
 }
