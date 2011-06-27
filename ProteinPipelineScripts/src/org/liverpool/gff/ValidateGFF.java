@@ -379,11 +379,10 @@ public class ValidateGFF {
     	// otherwise continue...
     	ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
     		
+    	// sort the cdsColl according to the start position...
+    	cdsColl = sortCDSAccordingToStartPosition(cdsColl);
+    	
     	long cdsStartLocation = cdsColl.get(0).getStart();
-    	for (int i=1;i < cdsColl.size(); i++){
-    		if(cdsColl.get(i).getStart() < cdsStartLocation)
-    			cdsStartLocation = cdsColl.get(i).getStart(); 
-    	}
     	
     	long mappedStartLocation = cdsStartLocation + start * 3;
     	long mappedEndLocation   = cdsStartLocation + end * 3;
@@ -395,13 +394,15 @@ public class ValidateGFF {
     }
     
     /**
+     * Sort the CDS record, with the ascending order of the start position.
      * 
+     * @param cdsColl
+     * @return
      */
-    String  determineTheLocationOfSeqOnCds(String accession, ArrayList<CDS_Information> cdsColl, long mappedStartLocation, long mappedEndLocation){
+    ArrayList<CDS_Information> sortCDSAccordingToStartPosition(ArrayList<CDS_Information> cdsCollection){
     	
-    	String gffEntry = new String();
-    	
-    	// sort the cdsColl according to the start position...
+    	ArrayList<CDS_Information> cdsColl = new ArrayList<CDS_Information>(cdsCollection); 
+    		
     	for(int i =  0; i < cdsColl.size() - 1; i++){
     		CDS_Information cds_i = cdsColl.get(i);
     		for(int j = i+1; j < cdsColl.size(); j++){
@@ -413,9 +414,23 @@ public class ValidateGFF {
     			}
     		}
     	}
+    	return cdsColl;
+    }
+    
+    /**
+     * 
+     */
+    String  determineTheLocationOfSeqOnCds(String accession, ArrayList<CDS_Information> cdsColl, long mappedStartLocation, long mappedEndLocation){
+    	
+    	String gffEntry = new String();
+    	
+    	// sort the cdsColl according to the start position...
+    	cdsColl = sortCDSAccordingToStartPosition(cdsColl);
+    	
     	
     	ArrayList<CDS_Information> matchedIndices = new ArrayList<CDS_Information>();
     	boolean foundEnd = false;
+    	boolean shiftForEndPosition = false;
     	
     	for(int i = 0 ; i < cdsColl.size(); i++){
     		long cds_start = cdsColl.get(i).getStart();
@@ -439,12 +454,15 @@ public class ValidateGFF {
         	    				matchedIndices.add(cdsColl.get(l));
         	    			break;
         	    		}
+        	    		
         	    		// Case - falls somewhere after one CDS, but before the next or the last CDS
+        	    		// This means that the end needs to be "shifted" to the next CDS
         	    		if(mappedEndLocation < cds_start_2){ 
         	    			foundEnd = true;
-        	    			for (int l = i; l < j ; l++) // Exclude the this CDS, as the range is 'before' the start of this
+        	    			shiftForEndPosition = true;
+        	    			for (int l = i; l <= j ; l++) 
         	    				matchedIndices.add(cdsColl.get(l));
-        	    		} 
+        	    		}	
         			}
         			
         			// Case - Start present inside a CDS, but end present Outside all CDS, so collect all CDS from index i
@@ -494,10 +512,19 @@ public class ValidateGFF {
     		if(i == 0){
     			start = mappedStartLocation;
     		}
+    		
     		// last index
+    		long shiftNeeded = 0;
     		if(i == matchedIndices.size() - 1){
-    			end = mappedEndLocation;
+    			
+    			if(shiftForEndPosition == true){
+        			shiftNeeded = mappedEndLocation - matchedIndices.get(i-1).getEnd() ; 
+        			end = start + shiftNeeded;
+        		}
+    			else
+    				end = mappedEndLocation;
     		}
+    		
     		
     		gffEntry = gffEntry + seqId + "\t" + source + "\t" + feature + "\t" + start + "\t" + end 
     									+ "\t" + score + "\t" + phase + "\t" + attr + "\n";
@@ -545,9 +572,9 @@ public class ValidateGFF {
 		
 		// GFF writing part here...
 		String summaryFile     		   = args[1];
+		
 		String decoyIdentifier 		   = args[2];
 		String  outputGffFile          = args[3];
-		
 		ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
 		ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
 		
