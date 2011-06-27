@@ -141,15 +141,26 @@ public class CreateSummaryFile {
 	    pepSpectrumMatch.add(expMass);
 	    pepSpectrumMatch.add(currentBlockOfProcessing); // Add the SE combination identifier
 	    
-	    if(allProteinSummary.containsKey(protAccn)){
-	    	ArrayList<ArrayList<String>> records = allProteinSummary.get(protAccn);
-	    	records.add(pepSpectrumMatch);
-	    	allProteinSummary.put(protAccn, records);
-	    }else{
-	    	ArrayList<ArrayList<String>> records = new ArrayList<ArrayList<String>>(); 
-	    	records.add(pepSpectrumMatch);
-	    	allProteinSummary.put(protAccn, records);
+	    // This block works as a filter to stop the repeating of lines ( corresponding to a combined FDR score 
+	    // but different simple FDR) reported by the multiple search code.
+	    // If the current Spectrum and peptide match with the ones reported in the previous line, then skip it.
+	    if(currentBlockOfProcessing.equals("ot")){
+	    	if(allProteinSummary.containsKey(protAccn)){
+	    		ArrayList<ArrayList<String>>  rec = allProteinSummary.get(protAccn);;
+	    		String spectrum  = rec.get(rec.size() - 1).get(0);
+	    		String pep   = rec.get(rec.size() - 1).get(1);
+	    		
+	    		if( spectraId.equals(spectrum) && pep.equals(peptideSeq) )
+	    			return;
+		    }
 	    }
+	    
+	    ArrayList<ArrayList<String>> records = new ArrayList<ArrayList<String>>();
+	    if(allProteinSummary.containsKey(protAccn)){
+	    	records = allProteinSummary.get(protAccn);
+	    }
+	    records.add(pepSpectrumMatch);
+    	allProteinSummary.put(protAccn, records);
 		
 	}
 	
