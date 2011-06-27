@@ -239,7 +239,8 @@ public class CreateSummaryOfTheCompleteDataset {
 	
 	/**
 	 * 
-	 * @param args
+	 * @param args[0] = resultDir
+	 * @param args[1] = outputFile
 	 */
 	public static void main(String []args) throws Exception{
 		CreateSummaryOfTheCompleteDataset csf = new CreateSummaryOfTheCompleteDataset(args[0],args[1]);
