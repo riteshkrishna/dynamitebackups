@@ -555,12 +555,54 @@ public class ValidateGFF {
 		System.in.read();
 		
     }
-	/**
+    
+    /**
 	 * 
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String [] args) throws Exception{
+		
+		ValidateGFF vgf = new ValidateGFF();
+		
+		String gffFile = args[0];
+		
+		// GFF Reading part here...
+		if(args.length == 1){	
+			System.out.println("Creating Fasta file from the GFF.....");
+			 vgf.createFastaFromGFF(gffFile);
+			 return;
+		}
+		
+		// GFF writing part here...
+		if(args.length == 4){
+			String summaryFile     		   = args[1];
+			String decoyIdentifier 		   = args[2];
+			String  outputGffFile          = args[3];
+			ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
+			ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
+			
+			vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
+			
+		}else{
+	
+			System.out.println("Usage For creating Fasta file : gffFile");
+	
+			System.out.println("Usage For writing Gff : " +
+					"gffFile wholeDatabaseSummaryFile decoy-identifier outputGffFile");
+			return;
+		}
+			
+		
+
+	}
+
+	/**
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
+/*	public static void main(String [] args) throws Exception{
 		
 		String gffFile = args[0];
 		
@@ -581,5 +623,5 @@ public class ValidateGFF {
 		vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
 
 	}
-	
+	*/
 }
