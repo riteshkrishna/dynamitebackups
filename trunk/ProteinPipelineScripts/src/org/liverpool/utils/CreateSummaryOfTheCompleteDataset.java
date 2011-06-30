@@ -225,7 +225,7 @@ public class CreateSummaryOfTheCompleteDataset {
 						String content = new String(buffer);
 						content = content.trim();
 						
-						out.write("\n" + content);
+						out.write("\n" + content + "\t" + currentFile.getAbsolutePath());
 					}
 				}
 				
