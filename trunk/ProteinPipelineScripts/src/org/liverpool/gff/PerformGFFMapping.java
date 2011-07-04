@@ -3,7 +3,6 @@ package org.liverpool.gff;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public class PerformGFFMapping {
 		
@@ -56,7 +55,7 @@ public class PerformGFFMapping {
 						
 						String [] records = line.split("\t",-1);
 						if(records.length != 9){
-							System.out.println("Skipping... - " + line);
+							//System.out.println("Skipping... - " + line);
 							continue;
 						}
 						
@@ -263,7 +262,7 @@ public class PerformGFFMapping {
 						out.write(line + "\n");
 						
 						if(records.length != 9){
-							System.out.println("Skipping... - " + line);
+							//System.out.println("Skipping... - " + line);
 							continue;
 						}
 						
@@ -377,6 +376,9 @@ public class PerformGFFMapping {
 	    	long mapped_start = getMappedCordinates(start, sortedCDS);
 	    	long mapped_end   = getMappedCordinates(end, sortedCDS);
 	    	
+	    	//System.out.println("Accn = "+ accession + "Start = "+ start + ", End = " + end + 
+	    	//		"Mapp_start = " + mapped_start + " Mapp_end = " + mapped_end);
+	    	
 	    	gffEntry = createGffEntryString(accession,mapped_start,mapped_end, sortedCDS);
 	    	return gffEntry;
 	    }
@@ -401,82 +403,123 @@ public class PerformGFFMapping {
     			endPos[i] = sortedCDS.get(i).getEnd();
     		}
     		
+    		
+    		// Swap for -ve strand
+    		if(!strand.contains("+")){
+    			long temp = mapped_start;
+    			mapped_start = mapped_end;
+    			mapped_end = temp;
+    		}
+    		
+
     		int start_idx = -1;
     		int end_idx = -1;
     		
-	    	if(strand.contains("+")){
-	    		// cds_index_start for start and cds_index_end for end	
-	    		for(int i=0;i < startPos.length; i++){
-	    			if(mapped_start <= startPos[i]){
-	    				start_idx = i;
-	    				break;
-	    			}
-	    		}
+    		for(int i=0 ;i < startPos.length; i++){
+    			if(mapped_start >= startPos[i] && mapped_start <= endPos[i]){
+    				start_idx = i;
+    				break;
+    			}
+    		}
+    		for(int i=0 ;i < startPos.length; i++){
+    			if(mapped_end >= startPos[i] && mapped_end <= endPos[i]){
+    				end_idx = i;
+    				break;
+    			}
+    		}
+    		
+    		gffEntry = prepareGffString(accession,strand, mapped_start, mapped_end,start_idx,end_idx,sortedCDS);
 	    		
-	    		// cds_index_start for start and cds_index_end for end	
-	    		for(int i=0;i < endPos.length; i++){
-	    			if(mapped_end <= endPos[i]){
-	    				end_idx = i;
-	    				break;
-	    			}
-	    		}
-	    	}else{
-	    		// cds_index_end for start and cds_index_start for end	
-	    		for(int i=0;i < startPos.length; i++){
-	    			if(mapped_end <= startPos[i]){
-	    				start_idx = i;
-	    				break;
-	    			}
-	    		}
-	    			
-	    		for(int i=0;i < endPos.length; i++){
-	    			if(mapped_start <= endPos[i]){
-	    				end_idx = i;
-	    				break;
-	    			}
-	    		}	
-	    	}
+	    	return gffEntry;
+	    }
+	    
+	    /**
+	     * 
+	     * @param accession
+	     * @param mapped_start
+	     * @param mapped_end
+	     * @param start_idx
+	     * @param end_idx
+	     * @param sortedCDS
+	     * @return
+	     */
+	    String prepareGffString(String accession, String strand,long mapped_start, long mapped_end, 
+	    		int start_idx,int end_idx,ArrayList<CDS_Information> sortedCDS){
+	    	
+	    	String gffEntry = new String();
 	    	
 	    	// form GFF
 	    	String feature = "peptide";
 			String score = ".";
 	    	String attr = "ID=pep_"+ accession + "description=peptide;Derives_from=" + accession;
 	    	
-	    	// Swap for -ve strand
-    		if(!strand.contains("+")){
-    			long temp = mapped_start;
-    			mapped_start = mapped_end;
-    			mapped_end = temp;
-    			
-    		}
+	    	/////
+	    	// Note - we need to write according to the strand, as the -ve strand start will always be greater than end_idx
+	    	////
+	    	if(mapped_start > mapped_end){
+				System.out.println("Start > End..mapped_start =" + mapped_start + " mapped_end = " + mapped_end);
+				System.out.println("Accession = " + accession +" start_idx = " + start_idx + " end_idx = " + end_idx + "\n\n");
+			}
 	    	
-	    	if(start_idx != end_idx){
+
+	    	if(!strand.contains("+")){
 	    		
-	    		// First line of the block 
-	    		gffEntry = sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
-				feature + "\t" + mapped_start + "\t" + sortedCDS.get(start_idx).getEnd() + "\t" + score + "\t" + 
-				sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
+	    		if(start_idx != end_idx){
+	    			// This means that start_idx > end_idx - Always in case of -ve strand
+	    			//if(start_idx < end_idx)
+	    			//	System.out.println("\n Start_idx < end_idx ... start_idx =" + start_idx + " end_idx = " + end_idx);
+	    			
+	    			// First line of the block 
+	    			gffEntry = sortedCDS.get(end_idx).getSeqID() + "\t" + sortedCDS.get(end_idx).getSource() + "\t" +
+	    			feature + "\t" + sortedCDS.get(end_idx).getStart()  + "\t" + mapped_end + "\t" + score + "\t" + 
+	    			sortedCDS.get(end_idx).getStrand() + "\t" + sortedCDS.get(end_idx).getSePhase() + "\t" + attr + "\n";
 	    		
-	    		// between the blocks
-	    		for(int i = start_idx + 1; i < end_idx ; i++){
-	    			gffEntry = gffEntry +  sortedCDS.get(i).getSeqID() + "\t" + sortedCDS.get(i).getSource() + "\t" +
-					feature + "\t" + sortedCDS.get(i).getStart() + "\t" + sortedCDS.get(i).getEnd() + "\t" + score + "\t" + 
-					sortedCDS.get(i).getSePhase() + "\t" + attr + "\n";	
+	    			// between the blocks
+	    			for(int i = end_idx + 1; i < start_idx ; i++){
+	    				gffEntry = gffEntry +  sortedCDS.get(i).getSeqID() + "\t" + sortedCDS.get(i).getSource() + "\t" +
+	    				feature + "\t" + sortedCDS.get(i).getStart() + "\t" + sortedCDS.get(i).getEnd() + "\t" + score + "\t" + 
+	    				sortedCDS.get(i).getStrand() + "\t" + sortedCDS.get(i).getSePhase() + "\t" + attr + "\n";	
+	    			}
+	    		
+	    			// last line of the block
+	    			gffEntry = gffEntry + sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
+	    			feature + "\t" + mapped_start + "\t" + sortedCDS.get(start_idx).getEnd() + "\t" + score + "\t" + 
+	    			sortedCDS.get(start_idx).getStrand() + "\t" + sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
+	    			
+	    		}else{
+	    			
+	    			gffEntry = sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
+	    			feature + "\t" + mapped_start + "\t" + mapped_end + "\t" + score + "\t" + 
+	    			sortedCDS.get(start_idx).getStrand() + "\t" + sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
 	    		}
 	    		
-	    		// last line of the block
-	    		gffEntry = gffEntry + sortedCDS.get(end_idx).getSeqID() + "\t" + sortedCDS.get(end_idx).getSource() + "\t" +
-				feature + "\t" + sortedCDS.get(end_idx).getStart() + "\t" + mapped_end + "\t" + score + "\t" + 
-				sortedCDS.get(end_idx).getSePhase() + "\t" + attr + "\n";
-	    		
 	    	}else{
+
+	    		if(start_idx != end_idx){
+	    			// First line of the block 
+	    			gffEntry = sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
+	    			feature + "\t" + mapped_start + "\t" + sortedCDS.get(start_idx).getEnd() + "\t" + score + "\t" + 
+	    			sortedCDS.get(start_idx).getStrand() + "\t" + sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
 	    		
-	    		gffEntry = sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
-	    					feature + "\t" + mapped_start + "\t" + mapped_end + "\t" + score + "\t" + 
-	    					sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
+	    			// between the blocks
+	    			for(int i = start_idx + 1; i < end_idx ; i++){
+	    				gffEntry = gffEntry +  sortedCDS.get(i).getSeqID() + "\t" + sortedCDS.get(i).getSource() + "\t" +
+	    				feature + "\t" + sortedCDS.get(i).getStart() + "\t" + sortedCDS.get(i).getEnd() + "\t" + score + "\t" + 
+	    				sortedCDS.get(i).getStrand() + "\t" + sortedCDS.get(i).getSePhase() + "\t" + attr + "\n";	
+	    			}
+	    		
+	    			// last line of the block
+	    			gffEntry = gffEntry + sortedCDS.get(end_idx).getSeqID() + "\t" + sortedCDS.get(end_idx).getSource() + "\t" +
+	    			feature + "\t" + sortedCDS.get(end_idx).getStart() + "\t" + mapped_end + "\t" + score + "\t" + 
+	    			sortedCDS.get(end_idx).getStrand() + "\t" + sortedCDS.get(end_idx).getSePhase() + "\t" + attr + "\n";
+	    			
+	    		}else{
+	    			gffEntry = sortedCDS.get(start_idx).getSeqID() + "\t" + sortedCDS.get(start_idx).getSource() + "\t" +
+	    			feature + "\t" + mapped_start + "\t" + mapped_end + "\t" + score + "\t" + 
+	    			sortedCDS.get(start_idx).getStrand() + "\t" + sortedCDS.get(start_idx).getSePhase() + "\t" + attr + "\n";
+	    		}
 	    	}
 	    	
-	    		
 	    	return gffEntry;
 	    }
 	    
@@ -491,10 +534,12 @@ public class PerformGFFMapping {
 	    	
 	    	// compute the cumm array
 	    	long [] cummArray = cumulativeStartPositions(cdsColl);
-	    	long number_toMap = (number - 1) * 3;
+	    	//long number_toMap = (number - 1) * 3;
+	    	long number_toMap = number * 3;
 	    	
 	    	int idx = determineTheIndexInCummulativeArray(number_toMap, cummArray);
-	    	long shift = cummArray[idx] - number;
+	    	
+	    	long shift = cummArray[idx] - number_toMap;
 	    	
 	    	if(cdsColl.get(0).getStrand().contains("+")){
 	    		long end_cds = cdsColl.get(idx).getEnd();
@@ -526,8 +571,8 @@ public class PerformGFFMapping {
 	    			
 	    	// Ascending sort...
 	    	for(int i =  0; i < cdsColl.size() - 1; i++){
-	    		CDS_Information cds_i = cdsColl.get(i);
 	    		for(int j = i+1; j < cdsColl.size(); j++){
+	    			CDS_Information cds_i = cdsColl.get(i);
 	    			CDS_Information cds_j = cdsColl.get(j);
 	    			if(cds_i.getStart() > cds_j.getStart()){
 	    				CDS_Information temp = cds_i;
@@ -562,12 +607,13 @@ public class PerformGFFMapping {
 	    	long [] cummStartPosition = new long[cdsCollection.size()];
 	    	
 	    	// compute Diff = end - start
-	    	for(int i = 0 ; i < cdsCollection.size() - 1; i++){
-	    		cummStartPosition[i] = cdsCollection.get(i).getEnd() - cdsCollection.get(i).getStart();
+	    	for(int i = 0 ; i < cdsCollection.size() ; i++){
+	    		//cummStartPosition[i] = cdsCollection.get(i).getEnd() - cdsCollection.get(i).getStart();
+	    		cummStartPosition[i] = cdsCollection.get(i).getEnd() - cdsCollection.get(i).getStart() + 1;
 	    	}
 	    	
 	    	// Form cumulative array 
-	    	for(int i = 1; i < cummStartPosition.length  - 1; i++){
+	    	for(int i = 1; i < cummStartPosition.length ; i++){
 	    		cummStartPosition[i] = cummStartPosition[i] + cummStartPosition[i-1];
 	    	}
 	    	
@@ -591,10 +637,7 @@ public class PerformGFFMapping {
 	    				break;
 	    			}
 	    		}
-	    		
-	    		if(idx == -1)
-	    			throw new Exception("Cummulative index not found.....");
-	    		
+	    	
 	    	}catch(Exception e){
 	    		System.out.println(e.getMessage());
 	    		e.printStackTrace();
