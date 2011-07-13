@@ -102,7 +102,7 @@ public class PerformGFFMapping {
 					}else{
 						
 						// Now we are in the FASTA section, so we should have all the cds information
-						System.out.println("Entering the ##FASTA section...total CDS found - " + cdsRecords.size() );
+						//System.out.println("Entering the ##FASTA section...total CDS found - " + cdsRecords.size() );
 						
 						if(cdsRecords.size() == 0){
 							System.out.println("No CDS field found.....exiting");
@@ -451,7 +451,7 @@ public class PerformGFFMapping {
 	    	// form GFF
 	    	String feature = "peptide";
 			String score = ".";
-	    	String attr = "ID=pep_"+ accession + "description=peptide;Derives_from=" + accession;
+	    	String attr = "ID=pep_"+ accession + ";description=peptide;Derives_from=" + accession;
 	    	
 	    	/////
 	    	// Note - we need to write according to the strand, as the -ve strand start will always be greater than end_idx
@@ -658,7 +658,53 @@ public class PerformGFFMapping {
 			System.in.read();
 			
 	    }
-
+	    
+	    /**
+	     * 
+	     * @param outputGffFile
+	     * @param gffFile
+	     * @return
+	     */
+	    boolean appendFastaToGff(String outputGffFile,String gffFile){
+	    	boolean done = false;
+	    	try{
+	    		BufferedReader in =  new BufferedReader(new FileReader(gffFile));
+	    		
+	    		FileWriter fstream = new FileWriter(outputGffFile,true);
+	    		BufferedWriter out = new BufferedWriter(fstream);
+	    		
+	    		// Iterate till you hit the ##FASTA region
+	    		String line;
+	    		boolean fastaRegionFlag = false;
+				while((line = in.readLine()) != null){	
+					if(line.startsWith("##")){
+						if(line.equals("##FASTA")){
+							fastaRegionFlag = true;
+							break;
+						}
+					}
+				}
+				
+				// Once we have found the FASTA region, the writing starts
+				if(fastaRegionFlag){
+					out.write("##FASTA\n");
+		    		while((line = in.readLine()) != null){
+		    			out.write(line + "\n");
+		    		}
+		    		done = true;
+				}
+				
+	    		in.close();
+	    		out.close();
+	    		
+	    	}catch(Exception e){
+	    		e.printStackTrace();
+	    		return done;
+	    	}
+	    	return done;
+	    }
+	    
+	    
 	    /**
 		 * 
 		 * @param args
@@ -687,6 +733,13 @@ public class PerformGFFMapping {
 				
 				vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
 				
+				boolean success = vgf.appendFastaToGff(outputGffFile,gffFile);
+				
+				if(success){
+					System.out.println(" Gff completed -" + outputGffFile);
+				}else{
+					System.out.println(" Problem completing Gff -" + outputGffFile);
+				}
 			}else{
 		
 				System.out.println("Usage For creating Fasta file : gffFile");
