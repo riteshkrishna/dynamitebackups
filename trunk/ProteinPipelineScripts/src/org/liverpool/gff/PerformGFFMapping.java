@@ -1,5 +1,10 @@
 package org.liverpool.gff;
 
+/**
+ * This class creates a GFF3 file with peptide information, from the 
+ * result produced by Proteomics pipeline and by referencing the offical
+ * GFF which was used for creating the sequence database.  
+ */
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -707,7 +712,10 @@ public class PerformGFFMapping {
 	    
 	    /**
 		 * 
-		 * @param args
+		 * @param args[0] - Official/Reference GFF3 File
+		 * @param args[1] - Summary file from Proteomics pipeline
+		 * @param args[2] - Decoy identifier
+		 * @param args[3] - Name of the output GFF3 to produce
 		 * @throws Exception
 		 */
 		public static void main(String [] args) throws Exception{
