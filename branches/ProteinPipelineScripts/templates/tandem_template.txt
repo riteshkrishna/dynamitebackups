@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<bioml>
+
+	<note type="input" label="list path, default parameters">{{ default_input_file }}</note>
+	<note type="input" label="list path, taxonomy information">{{ taxonomy_file }}</note>
+	<note type="input" label="protein, taxon">{{ species }}</note>
+	<note type="input" label="spectrum, path">{{ input_file }}</note>
+	<note type="input" label="output, path">{{ output_file }}</note>
+	{{ missed_cleavages }}
+	{{ enzyme_name }} 
+	{{ fixed_mod_id }}
+	{{ variable_mod_id }}
+	{{ product_tolerance }} 
+	{{ precursor_tolerance }}
+	<note type="input" label="refine, maximum valid expectation value">10</note>
+    <note type="input" label="output, maximum valid expectation value">10</note>
+</bioml>

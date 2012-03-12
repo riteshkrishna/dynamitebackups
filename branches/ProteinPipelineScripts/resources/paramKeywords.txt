@@ -1,0 +1,12 @@
+database_file
+user_name
+enzyme_name
+missed_cleavage_no
+fragment_search_plus
+fragment_search_minus
+parent_search_plus
+parent_search_minus
+decoy_regex
+modifications
+decoy_ratio
+rank_threshold
