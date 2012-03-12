@@ -1,1 +1,0 @@
--he 100 {{ input_file }} {{ fasta_file }} {{ enzyme_name }} {{ missed_cleavages }} {{ product_tolerance }} {{ precursor_tolerance }} {{ fixed_mod_id }} {{ variable_mod_id }} {{ output_file }}
