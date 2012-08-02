@@ -127,6 +127,74 @@ public class ConstructSearchCommand {
 	}
 	
 	/**
+	 * Omssa specific command template resolving...
+	 * @param inputHash
+	 * @param templateCommand
+	 * @return
+	 */
+	String fillTheCommandTemplateForOmssa(HashMap <String, String> inputHash, String templateCommand){
+		String command = new String(templateCommand);
+		Iterator <String> inputkeys = inputHash.keySet().iterator();
+		while(inputkeys.hasNext()){
+			String key = inputkeys.next();
+			String textToReplace = "{{ " + key.trim() + " }}";
+			String omssaCompatibleParameter = omssaParameterReplacementFlags(key.trim(),inputHash.get(key));
+			//command = command.replace(textToReplace,inputHash.get(key));
+			command = command.replace(textToReplace,omssaCompatibleParameter);
+		}
+		
+		// Remove all the -te,-to etc
+		InputCleaning ic = new InputCleaning();
+		inputHash = ic.cleanTheSearchEngineInputFromExtraFlags(inputHash);
+		// Store the information in the class
+		this.inputContent.putAll(inputHash);
+		
+		return command;
+	}
+	
+	/**
+	 * This function adds the OMSSA specific flags for creating a proper command
+	 * @param omssakeyword
+	 * @param userInput
+	 * @return
+	 */
+	String omssaParameterReplacementFlags(String omssakeyword, String userInput){
+		String replacementText = new String();
+				
+		if(omssakeyword.contains("input_file"))
+			replacementText = "-fm " + userInput;	
+		
+		if(omssakeyword.contains("fasta_file"))
+			replacementText = "-d " + userInput;
+		
+		if(omssakeyword.contains("enzyme_name"))
+			replacementText = "-e " + userInput;
+
+		if(omssakeyword.contains("missed_cleavages"))
+			replacementText = "-v " + userInput;
+			
+		if(omssakeyword.contains("product_tolerance"))
+			replacementText = "-to " + userInput;
+		
+		if(omssakeyword.contains("precursor_tolerance"))
+			replacementText = "-te " + userInput;
+			
+		if(omssakeyword.contains("fixed_mod_id"))
+			replacementText = "-mf " + userInput;
+			
+		if(omssakeyword.contains("variable_mod_id"))
+			replacementText = "-mv " + userInput;
+			
+		if(omssakeyword.contains("output_file"))
+			replacementText = "-oc " + userInput;
+			
+		if(replacementText == null)
+			log.fatal("Problem with Input Parameters - Check the Input Parameter file");
+		
+		return replacementText;	
+		
+	}
+	/**
 	 * This function will take the command string constructed after filling the template, and remove
 	 * the unused "{{ text }}" blocks to produce the usuable command string. 
 	 */
@@ -148,7 +216,7 @@ public class ConstructSearchCommand {
 			
 			if(vif.validateContentOfInputFileAgainstAllowedKeywords(allowedKeywords, inputHash.keySet())){
 				if(searchEngineName.equals(Constants.OMSSA_ID))
-					command = fillTheCommandTemplate(inputHash,templateCommand);
+					command = fillTheCommandTemplateForOmssa(inputHash,templateCommand);
 				if(searchEngineName.equals(Constants.TANDEM_ID)){
 					command = fillTheCommandTemplateAfterResolvingForTandem(inputHash,templateCommand);
 				}
