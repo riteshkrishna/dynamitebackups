@@ -33,7 +33,13 @@ public class ReadConfigurationFiles {
 		
 		try{
 			while(scanner.hasNextLine() ){
-				HashMap <String, String> lineContent = processEachLine(scanner.nextLine(),withinLineDelimiter);
+				String line = scanner.nextLine();
+				
+				// Handle empty lines in the input file
+				if(line.isEmpty())
+					continue;
+				
+				HashMap <String, String> lineContent = processEachLine(line,withinLineDelimiter);
 				String key = lineContent.keySet().iterator().next();
 				String value = lineContent.get(key);
 				inputs.put(key, value);
