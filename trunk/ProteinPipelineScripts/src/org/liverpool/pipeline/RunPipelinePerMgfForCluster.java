@@ -119,7 +119,7 @@ public class RunPipelinePerMgfForCluster {
 			String fileName = mgf.getName();
 			if(fileName.contains(".mgf"))
 				fileName = fileName.replace(".mgf","");
-			String outputPath = this.outputDirToStoreOutputs + "/dir"+fileName;
+			String outputPath = this.outputDirToStoreOutputs +  File.separator + "dir"+fileName;
 			
 			String filledTemplate = this.inputTemplate.replace(textToReplace_input, fullpathname);
 			filledTemplate = filledTemplate.replace(textToReplace_output, outputPath);
@@ -130,7 +130,7 @@ public class RunPipelinePerMgfForCluster {
 				log.fatal("Unable to make directory : " + outputPath + "...exiting !");
 				System.exit(0);
 			}
-			String inputFileForSe = outputPath.concat("/input.txt");
+			String inputFileForSe = outputPath.concat( File.separator + "input.txt");
 			BufferedWriter br = new BufferedWriter(new FileWriter(inputFileForSe));
 			br.write(filledTemplate);
 			br.close();
