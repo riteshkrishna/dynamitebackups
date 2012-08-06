@@ -137,7 +137,7 @@ public class RunPipelineForWholeDirectory {
 				String fileName = mgf.getName();
 				if(fileName.contains(".mgf"))
 					fileName = fileName.replace(".mgf","");
-				String outputPath = this.outputDirToStoreOutputs + "/dir"+fileName;
+				String outputPath = this.outputDirToStoreOutputs + File.separator + "dir"+fileName;
 				
 				String filledTemplate = this.inputTemplate.replace(textToReplace_input, fullpathname);
 				filledTemplate = filledTemplate.replace(textToReplace_output, outputPath);
@@ -148,7 +148,7 @@ public class RunPipelineForWholeDirectory {
 					log.fatal("Unable to make directory : " + outputPath + "...exiting !");
 					System.exit(0);
 				}
-				String inputFileForSe = outputPath.concat("/input.txt");
+				String inputFileForSe = outputPath.concat(File.separator + "input.txt");
 				BufferedWriter br = new BufferedWriter(new FileWriter(inputFileForSe));
 				br.write(filledTemplate);
 				br.close();
@@ -175,13 +175,14 @@ public class RunPipelineForWholeDirectory {
 		
 		/*
 		String inputTemplate = "inputFiles/inputFileTemplate.txt";
-		String inputMgfDir = "/Users/riteshk/Ritesh_Work/Toxo/Toxo_Test_MSDataset";
-		String outputMgfDir = "/Users/riteshk/Ritesh_Work/TestSpace/pipeline_test/tmp";
+		String inputMgfDir = "/Users/riteshk/Ritesh_Work/TestSpace/Toxo_Test_MSDataset";
+		String outputMgfDir = "/Users/riteshk/Ritesh_Work/TestSpace/pipeline_test";
 		
 		String inputDelimiter = "=";
 		String parserInputFile = "inputFiles/mzIdentMLParser_inputFile.txt";
 		String parserDelimiter = "=";
 		*/
+		
 		if(args.length != 6){
 			System.out.println("Arguments needed : inputTemplateFile inputMgfDir outputMgfDir inputDelimiter parserInputFile parserFileDelimiter");
 			System.exit(0);
