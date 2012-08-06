@@ -179,7 +179,7 @@ public class Pipeline {
 		/******************************************************************/
 		// Execute X!Tandem command
 		/******************************************************************/
-		String inputxml = dirToStoreTempFile + "/input" + "_" + randomNumberIdentifier +".xml";
+		String inputxml = dirToStoreTempFile + File.separator +"input" + "_" + randomNumberIdentifier +".xml";
 		try{
 			File inputXmlFile = new File(inputxml);
 			if(inputXmlFile.exists())
@@ -213,12 +213,12 @@ public class Pipeline {
 													pipeline.paramKeywordFile);
 		
 		File paramTemplateFile = pipeline.templateFile_omssa_param; 
-		File paramFileToCreate_omssa = new File(dirToStoreTempFile.concat("/exampleParam_omssa" + "_" + randomNumberIdentifier +".csv"));
+		File paramFileToCreate_omssa = new File(dirToStoreTempFile.concat(File.separator + "exampleParam_omssa" + "_" + randomNumberIdentifier +".csv"));
 		cp.createParamFile(paramFileToCreate_omssa, paramTemplateFile);
 
 		// ------ X!Tandem
 		paramTemplateFile = pipeline.templateFile_tandem_param; 
-		File paramFileToCreate_tandem = new File(dirToStoreTempFile.concat("/exampleParam_tandem" + "_" + randomNumberIdentifier +".csv"));
+		File paramFileToCreate_tandem = new File(dirToStoreTempFile.concat(File.separator + "exampleParam_tandem" + "_" + randomNumberIdentifier +".csv"));
 		cp.createParamFile(paramFileToCreate_tandem, paramTemplateFile);
 
 		/******************************************************************/
@@ -228,13 +228,13 @@ public class Pipeline {
 		ConstructMzIdentMLParserCommand cmp = new ConstructMzIdentMLParserCommand(pipeline.externalSetupFile, pipeline.externalSetupFileDelimiter);
 		
 		String searchEngineKeyword = Constants.OMSSA_KEYWORD;
-		String outputMzIdentMLFile_omssa = dirToStoreTempFile + "/From_omssa" + "_" + randomNumberIdentifier +".mzid";
+		String outputMzIdentMLFile_omssa = dirToStoreTempFile + File.separator + "From_omssa" + "_" + randomNumberIdentifier +".mzid";
 		String commandparser = cmp.createMzIdentML(searchEngineKeyword, paramFileToCreate_omssa.getAbsolutePath(), outputFileProduced_omssa, outputMzIdentMLFile_omssa);
 		ec = new ExecuteCommands();
 		ec.execute(commandparser);
 		
 		searchEngineKeyword = Constants.TANDEM_KEYWORD;
-		String outputMzIdentMLFile_tandem = dirToStoreTempFile + "/From_tandem" + "_" + randomNumberIdentifier +".mzid";
+		String outputMzIdentMLFile_tandem = dirToStoreTempFile + File.separator + "From_tandem" + "_" + randomNumberIdentifier +".mzid";
 		commandparser = cmp.createMzIdentML(searchEngineKeyword, paramFileToCreate_tandem.getAbsolutePath(), outputFileProduced_tandem, outputMzIdentMLFile_tandem);
 		ec = new ExecuteCommands();
 		ec.execute(commandparser);
@@ -249,8 +249,8 @@ public class Pipeline {
 		String parserInputFile 				= parserConfigurationInput.getAbsolutePath();
 		String parserInputDelimiter 		= parserFileDelimiter;
 		
-		String outputFile =  dirToStoreTempFile + "/FinalOutput" + "_" + randomNumberIdentifier +".txt"; 
-		String debugFile =  dirToStoreTempFile + "/FinalOutput_Verbose" + "_" + randomNumberIdentifier +".txt";
+		String outputFile =  dirToStoreTempFile + File.separator + "FinalOutput" + "_" + randomNumberIdentifier +".txt"; 
+		String debugFile =  dirToStoreTempFile + File.separator + "FinalOutput_Verbose" + "_" + randomNumberIdentifier +".txt";
 		
 		log.info(" mzFile 1 : " + mzIdeFile_1 + "mzFile 2 : " + mzIdeFile_2 + "\t ParserInput : " + parserInputFile);
 		
@@ -261,7 +261,7 @@ public class Pipeline {
 		
 		// Add the Result Summary part
 		try{
-			String summaryFile =  dirToStoreTempFile + "/Summary_" + "_" + randomNumberIdentifier +".txt";
+			String summaryFile =  dirToStoreTempFile + File.separator + "Summary_" + "_" + randomNumberIdentifier +".txt";
 			CreateSummaryFile csf = new CreateSummaryFile(outputFile, summaryFile);
 			csf.createTheSummaryFile();	
 		}catch(Exception e){
