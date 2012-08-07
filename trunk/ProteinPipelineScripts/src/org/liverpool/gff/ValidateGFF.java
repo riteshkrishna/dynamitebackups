@@ -1,25 +1,18 @@
 /**
- * This may require some strategic changes.....
- * Read the whole GFF line by line
- * Find unique CDSs by looking at the ID in the description column
- * Extract FASTA sequences for all the CDS - Give error in ##FASTA directive is missing
- * Use the fasta for DB preparation
+ * The code to process a GFF3 file for creating FASTA and for creating a new GFF3 with mapped peptides added.
+ * The code works in two different modes which is listed in the main().
  * 
- * Pipeline will inform the location of peptide on CDS
- * We know which CDS falls where on which gene
- * So we know where the peptide falls on the genome
- * 
- * mature_peptide/polypeptide are accepted types in GFF
- * 
- * 
- * Idea to think about -
- * - Escape ## directives till ##FASTA is found
- * - Parse the remaining lines for \t and 9 columns
- * - Remember the CDS - and the whole information about that
- * 		- will also need to parse the attribute column for CDS
- * - Read till ##FASTA is found
- * - Find the CDS sequences in Fasta file and write them in another file
- * - Write the CDS information in a separate file to query later while doing the peptide mapping
+ * The code is pretty strict in parsing the GFF3 format, as it demands the GFF3 to have certain fields -
+ *  - ## FASTA
+ *  - the third column in GFF3 denoting type must be equal to string "CDS" denoting coding region
+ *  - The ninth column in GFF3 denoting attribute must have an "ID"
+ *  - The FASTA sequences in the GFF3 must have the same identifier as the corresponding ID of the CDS 
+ *  
+ *   The code does the following ignoring and error reporting -
+ *   - if no ##FASTA section present in the file - report error and exit
+ *   - if any CDS is missing the "ID" in attribute - report error and exit
+ *   - if extra fasta sequences present than the ones with GFF3 entry - ignore extra sequences, continue
+ *   - if extra CDS present in GFF3 entries, but no corresponding fasta seq - ignore those CDS, continue
  */
 
 package org.liverpool.gff;
@@ -27,7 +20,7 @@ package org.liverpool.gff;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+
 
 public class ValidateGFF {
 	
@@ -101,14 +94,14 @@ public class ValidateGFF {
 							startPos = Long.parseLong(start);
 							endPos = Long.parseLong(end);
 							//A simple check...
-							if(endPos < startPos){
-								System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
-								throw new Exception();
-							}
+							//if(endPos < startPos){
+							//	System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
+							//	throw new Exception();
+							//}
 						}catch(NumberFormatException e){
-							System.out.println("Problem in processing the start and end fields of Line - \n" + line + "\n...exiting");
-							e.printStackTrace();
-							throw e;
+							String exMessage = "ProteoAnnotator : Problem in processing the start and end fields of Line - \n" + line + "\n...exiting";
+							System.out.println(exMessage);
+							throw new Exception(exMessage);
 						}
 						
 						CDS_Information cdsObj = new CDS_Information(seqId, source, startPos, endPos, strand, phase, attribute);
@@ -119,19 +112,21 @@ public class ValidateGFF {
 						if(cdsColl == null){
 							cdsColl = new ArrayList<CDS_Information>();
 						}
-
+						
 						cdsColl.add(cdsObj);
-						this.cdsRecords.put(cdsId, cdsColl);
+						
+						if(cdsId != null)
+							this.cdsRecords.put(cdsId, cdsColl);
 					}	
 					
 				}else{
 					
 					// Now we are in the FASTA section, so we should have all the cds information
-					System.out.println("Entering the ##FASTA section...total CDS found - " + cdsRecords.size() );
 					
 					if(cdsRecords.size() == 0){
-						System.out.println("No CDS field found.....exiting");
-						throw new Exception();
+						String exMessage = "No CDS field found.....exiting";
+						System.out.println(exMessage);
+						throw new Exception(exMessage);
 					}
 					
 					// If all well, then process fasta - skip the line having ##FASTA 
@@ -158,12 +153,13 @@ public class ValidateGFF {
 				
 			} // end of while
 			
-			System.out.println("Out of while loop");
+			//System.out.println("Out of while loop");
 			
 			// Signal error if no ##FASTA is encountered...
 			if(fastaRegionFlag == false){
-				System.out.println("No ##FASTA directive encountered.....Quitting");
-				throw new Exception();
+				String exMessage = "No ##FASTA directive encountered.....Quitting";
+				System.out.println(exMessage);
+				throw new Exception(exMessage);
 			}
 			
 			// Write the last fasta sequence in the file
@@ -173,7 +169,9 @@ public class ValidateGFF {
 					temp_out.write( "\n" + accn + "\n" + seq);
 					fastaCount++;
 					}
-			}
+			}			
+			
+			System.out.println("Total CDS entries found - " + cdsRecords.size() );
 			
 			in.close();
 			temp_out.close();
@@ -182,6 +180,9 @@ public class ValidateGFF {
 			return temp.getAbsolutePath();
 			
 		}catch(Exception e){
+			// All the exceptions caught during making of a FASTA file are reported here and the program exists
+			System.out.println("ProteoAnnotator : Exception encountered in the GFF - " + e.getMessage());
+			System.exit(0);
 			throw e;
 		}
 		
@@ -193,17 +194,21 @@ public class ValidateGFF {
 	 * @return
 	 */
 	String parseAttributeFieldToExtractId (String attribute) throws Exception{
-		String id = new String();
+		String id = null;
 		
 		String [] splitOnColon = attribute.split(";",-1);
 		if(splitOnColon.length == 0){
 			String [] keyVal = attribute.split("=",-1);
 			if(keyVal.length == 0){
-				System.out.println("No ID found for the CDS entry");
-			}else if (keyVal[0].compareToIgnoreCase("ID")  < 0){
-				System.out.println("No ID found for the CDS entry");
+				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
+				System.out.println(exMessage);
+				throw new Exception(exMessage);
+			}else if (!keyVal[0].equals("ID") ){
+				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
+				System.out.println(exMessage);
+				throw new Exception(exMessage);
 			}else{
-				id  = keyVal[1];
+				id  = new String(keyVal[1]);
 			}
 		}else{
 			boolean found = false;
@@ -213,10 +218,10 @@ public class ValidateGFF {
 				String [] keyVal = subAttr.split("=",-1);
 				if(keyVal.length == 0){
 					System.out.println("No ID found for the CDS entry");
-				}else if (keyVal[0].compareToIgnoreCase("ID")  < 0){
+				}else if (!keyVal[0].equals("ID")){
 					System.out.println("No ID found for the CDS entry");
 				}else{
-					id = keyVal[1];
+					id = new String(keyVal[1]);
 					found = true;
 				}
 				if(found)
@@ -224,8 +229,9 @@ public class ValidateGFF {
 			}
 			
 			if(!found){
-				System.out.println("No ID found for the CDS entry");
-				throw new Exception();
+				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
+				System.out.println(exMessage);
+				throw new Exception(exMessage);
 			}
 			
 		}
@@ -259,7 +265,7 @@ public class ValidateGFF {
      */
     public void writingTheGFFfile(String inputGffFile, String outputGffFile,ArrayList<ProteinResults> proteinHits)
     																		throws Exception{
-		
+		try{
 			BufferedReader in =  new BufferedReader(new FileReader(inputGffFile));
 			String line;
 			boolean fastaRegionFlag = false;
@@ -309,14 +315,14 @@ public class ValidateGFF {
 							endPos = Long.parseLong(end);
 							
 							//A simple check...
-							if(endPos < startPos){
-								System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
-								throw new Exception();
-							}
+							//if(endPos < startPos){
+							//	System.out.println("End position = " + endPos + " greater than start position " + startPos+ " in Gff file");
+							//	throw new Exception();
+							//}
 						}catch(NumberFormatException e){
-							System.out.println("Problem in processing the start and end fields of Line - \n" + line + "\n...exiting");
-							e.printStackTrace();
-							throw e;
+							String exMessage = "ProteoAnnotator : Problem in processing the start and end fields of Line - \n" + line + "\n...exiting";
+							System.out.println(exMessage);
+							throw new Exception(exMessage);
 						}
 						
 						CDS_Information cdsObj = new CDS_Information(seqId, source, startPos, endPos, strand, phase, attribute);
@@ -342,8 +348,9 @@ public class ValidateGFF {
 			
 			// Exit if no CDS found
 			if(cdsRecords.size() == 0){
-				System.out.println("No CDS field found.....exiting");
-				throw new Exception();
+				String exMessage = "No CDS field found.....exiting";
+				System.out.println(exMessage);
+				throw new Exception(exMessage);
 			}
 			
 			in.close();
@@ -356,41 +363,54 @@ public class ValidateGFF {
 					out.write(mappedGffEntry);
 				
 			}
-			out.close();			
-		
+			out.close();
+			
+		}catch(IOException e){
+			System.out.println("ProteoAnnotator : IO Excpetion : Unable to create/read file");
+			System.exit(0);
+			throw e;
+		}catch(Exception e){
+			System.out.println("ProteoAnnotator : Exception encountered in the GFF - " + e.getMessage());
+			System.exit(0);
+			throw e;
+		}
     }
     
     /*
      * 
      */
     String mapToGff(ProteinResults pr){
-    	String gffMapping = new String();
     	
-    	// Get data from the protein object
-    	String accession = pr.getAccession();
-    	boolean decoyOrNot = pr.getDecoyOrNot();
-    	long start = pr.getstart();
-    	long end = pr.getEnd();
+    		String gffMapping = new String();
     	
-    	// return if no key found
-    	if(!cdsRecords.containsKey(accession))
-    		return null;
+    		// Get data from the protein object
+    		String accession = pr.getAccession();
+    		boolean decoyOrNot = pr.getDecoyOrNot();
+    		long start = pr.getstart();
+    		long end = pr.getEnd();
     	
-    	// otherwise continue...
-    	ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
+    		// return if no key found
+    		if(!cdsRecords.containsKey(accession))
+    			return null;
+    	
+    		// otherwise continue...
+    		ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
     		
-    	// sort the cdsColl according to the start position...
-    	cdsColl = sortCDSAccordingToStartPosition(cdsColl);
+    		// sort the cdsColl according to the start position...
+    		cdsColl = sortCDSAccordingToStartPosition(cdsColl);
     	
-    	long cdsStartLocation = cdsColl.get(0).getStart();
+    		long cdsStartLocation = cdsColl.get(0).getStart();
     	
-    	long mappedStartLocation = cdsStartLocation + start * 3;
-    	long mappedEndLocation   = cdsStartLocation + end * 3;
-    	
-    	//...find the cds this range falls into...
-    	gffMapping = determineTheLocationOfSeqOnCds(accession, cdsColl, mappedStartLocation,mappedEndLocation);
-    	
-    	return gffMapping;
+    		long mappedStartLocation = cdsStartLocation + start * 3;
+    		long mappedEndLocation   = cdsStartLocation + end * 3;
+    		
+    		try{
+    		//...find the cds this range falls into...
+    		gffMapping = determineTheLocationOfSeqOnCds(accession, cdsColl, mappedStartLocation,mappedEndLocation);
+    		}catch(Exception e){
+    			//e.printStackTrace();
+        	}
+    		return gffMapping;
     }
     
     /**
@@ -492,7 +512,7 @@ public class ValidateGFF {
     				throw new Exception();
     			}
     		}catch(Exception e){
-    			e.printStackTrace();
+    			//e.printStackTrace();
     		}
     		
     		return gffEntry;
@@ -535,7 +555,7 @@ public class ValidateGFF {
     				throw new Exception();
     			}
     		}catch(Exception e){
-    			e.printStackTrace();
+    			//e.printStackTrace();
     		}
     	}
     	
