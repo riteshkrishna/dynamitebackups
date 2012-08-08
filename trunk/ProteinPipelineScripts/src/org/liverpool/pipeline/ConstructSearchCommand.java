@@ -167,9 +167,21 @@ public class ConstructSearchCommand {
 		if(omssakeyword.contains("fasta_file"))
 			replacementText = "-d " + userInput;
 		
-		if(omssakeyword.contains("enzyme_name"))
+		if(omssakeyword.contains("enzyme_name")){
+			try{
+			// Check if proper number for enzyme provided or not, otherwise use Trypsin
+			int enzymeCode = Integer.parseInt(userInput);
+			if(enzymeCode != 0 || enzymeCode != 1 || enzymeCode != 2 || enzymeCode != 3 || enzymeCode != 4 || enzymeCode != 5 
+					|| enzymeCode != 6 || enzymeCode != 7 || enzymeCode != 9 || enzymeCode != 10  || enzymeCode != 12 || enzymeCode != 18 
+					|| enzymeCode != 19){
+				log.fatal("Wrong Enzyme specified  :" + userInput + "..exiting");
+				userInput = "0";
+				}
+			}catch(NumberFormatException e){
+				userInput = "0";
+			}
 			replacementText = "-e " + userInput;
-
+		}
 		if(omssakeyword.contains("missed_cleavages"))
 			replacementText = "-v " + userInput;
 			
@@ -276,13 +288,45 @@ public class ConstructSearchCommand {
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_ENZYME)){
 						enzyme = enzymeFileContent.get(inputHash.get(key));
 						
-						//TODO - At present, we have support for only Trypsin.It should be possible to
-						// provide support for other enzymes as well, if we know the regular expression for 
-						// other enzymes.
-						if(enzyme.contains("Trypsin")){
-							String xmlForEnzyme = "<note type=\"input\" label=\"protein, cleavage site\">[KR]|{P}</note> ";
-							inputHash.put(key, xmlForEnzyme);
+						if(enzyme == null){
+							log.info("In-compatible enzyme called from the list.Continuing with Trypsin");
+							enzyme = "Trypsin";
 						}
+						
+						// Find xtandem specific enzyme code
+						String enzymeTandemCode = new String();
+						if(enzyme.equals("Trypsin")){
+							enzymeTandemCode = "[KR]|{P}";
+						}else if(enzyme.equals("Arg-C")){
+							enzymeTandemCode = "[R]|{P}";
+						}else if(enzyme.equals("CNBr")){
+							enzymeTandemCode = "[M]|[X]";
+						}else if(enzyme.equals("Chymotrypsin (FYWL)")){
+							enzymeTandemCode = "[FYWL]|{P}";
+						}else if(enzyme.equals("Formic Acid")){
+							enzymeTandemCode = "[D]|[D]";
+						}else if(enzyme.equals("Lys-C")){
+							enzymeTandemCode = "[K]|{P}";
+						}else if(enzyme.equals("Lys-C (no P rule)")){
+							enzymeTandemCode = "[K]|[X]";
+						}else if(enzyme.equals("Pepsin A")){
+							enzymeTandemCode = "[FL]|[X]";
+						}else if(enzyme.equals("Trypsin+Chymotrypsin (FYWLKR)")){
+							enzymeTandemCode = "[FYWL]|{P}";
+						}else if(enzyme.equals("Trypsin (no P rule)")){
+							enzymeTandemCode = "[KR]|[X]";
+						}else if(enzyme.equals("Asp-N")){
+							enzymeTandemCode = "[X]|[BD]";
+						}else if(enzyme.equals("Chymotrypsin (no P rule (FYWL))")){
+							enzymeTandemCode = "[FYWL]|[X]";
+						}else if(enzyme.equals("Asp-N (DE)")){
+							enzymeTandemCode = "[X]|[DE]";
+						}else enzymeTandemCode = "[KR]|{P}";
+						
+						//if(enzyme.contains("Trypsin")){
+						String xmlForEnzyme = "<note type=\"input\" label=\"protein, cleavage site\">" + enzymeTandemCode + "</note> ";
+						inputHash.put(key, xmlForEnzyme);
+						//}
 						
 				}
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MISSED_CLEAVAGES)){
