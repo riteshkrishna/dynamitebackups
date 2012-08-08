@@ -151,6 +151,9 @@ public class ConstructParamFileForMzIdentMLParser {
 				if(this.searchInputContent.containsKey(value)){
 					if(value.contains(Constants.SUBSTRING_TO_IDENTIFY_ENZYME)){
 						resolvedValue = this.enzymeFileContent.get(this.searchInputContent.get(value).trim());
+						// If an incompatible enzyme found, report and continue with Trypsin. Reporting done already at ConstructSearchCommand.java
+						if(resolvedValue == null)
+							resolvedValue = "Trypsin";  
 					}else 
 						resolvedValue = this.searchInputContent.get(value).trim();
 				}else if(this.parserInputContent.containsKey(value)){
