@@ -143,7 +143,7 @@ public class CreateSummaryOfTheCompleteDataset {
 							if(records_next.length != 0)
 								newLine = records_next[0].trim();
 							else newLine = "Get out of the loop !!";
-							System.out.println(" In the loop : " + newLine);
+							//System.out.println(" In the loop : " + newLine);
 						}
 					}else{
 						newLine = "Get out of the loop !!";
