@@ -243,6 +243,12 @@ public class CreateSummaryOfTheCompleteDataset {
 	 * @param args[1] = outputFile
 	 */
 	public static void main(String []args) throws Exception{
+		
+		if(args.length != 2){	
+			System.out.println("Creating Summary files from the complete dataset");
+			System.out.println("Usage : [arg0] result_directory [arg1] outputfile_name");
+		}
+		
 		CreateSummaryOfTheCompleteDataset csf = new CreateSummaryOfTheCompleteDataset(args[0],args[1]);
 		csf.summarizeTheWholeDatasetResults();
 	}
