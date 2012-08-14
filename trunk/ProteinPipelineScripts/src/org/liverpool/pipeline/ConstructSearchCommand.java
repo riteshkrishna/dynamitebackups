@@ -171,12 +171,19 @@ public class ConstructSearchCommand {
 			try{
 			// Check if proper number for enzyme provided or not, otherwise use Trypsin
 			int enzymeCode = Integer.parseInt(userInput);
-			if(enzymeCode != 0 || enzymeCode != 1 || enzymeCode != 2 || enzymeCode != 3 || enzymeCode != 4 || enzymeCode != 5 
-					|| enzymeCode != 6 || enzymeCode != 7 || enzymeCode != 9 || enzymeCode != 10  || enzymeCode != 12 || enzymeCode != 18 
-					|| enzymeCode != 19){
-				log.fatal("Wrong Enzyme specified  :" + userInput + "..exiting");
+			
+			if(enzymeCode >=0 && enzymeCode <=7){}
+			else if (enzymeCode == 9){}
+			else if (enzymeCode == 10){}
+			else if (enzymeCode == 12){}
+			else if (enzymeCode == 13){}
+			else if (enzymeCode == 18){}
+			else if (enzymeCode == 19){}
+			else{
+				log.fatal("Wrong Enzyme specified  :" + userInput + "...assuming Trypsin");
 				userInput = "0";
-				}
+			}
+			
 			}catch(NumberFormatException e){
 				userInput = "0";
 			}
