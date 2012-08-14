@@ -1,6 +1,7 @@
 package org.liverpool.pipeline;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -14,7 +15,16 @@ public class ExecuteCommands {
 		
 	public void execute(String commandString){
 		try{
-			ProcessBuilder builder = new ProcessBuilder("sh","-c",commandString);
+			ProcessBuilder builder;
+			
+			String os = System.getProperty("os.name").toLowerCase();
+			
+			if(os.indexOf("win") >= 0)
+				builder = new ProcessBuilder("cmd.exe","/c",commandString);
+			else
+				builder = new ProcessBuilder("sh","-c",commandString);
+			
+			
 			builder.redirectErrorStream(true);
 			final Process process = builder.start();
 			
@@ -28,6 +38,7 @@ public class ExecuteCommands {
 			}
 			log.info("Search Engine finished..");
 		}catch(Exception ex){
+			log.fatal(ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
