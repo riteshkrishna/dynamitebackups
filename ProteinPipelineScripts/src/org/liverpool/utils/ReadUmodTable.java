@@ -119,9 +119,22 @@ public class ReadUmodTable {
 						break;
 					}
 				}
+				
 				if(!found){
-					log.fatal("Omssa Id :: " + omssaIdsToFind.get(i) + " not found in umod_table.csv");
-					throw new Exception();
+					String errormsg = "\n \n ** Error ** \n" +
+					"The mod = " + omssaIdsToFind.get(i) +" not found in the resources/UMOD_TABLE.csv. \n" +
+					"Please provide an existing and non-negative mod number from the Omssa_ID column in the resources/UMOD_TABLE.csv.\n" +
+					"Alternatively, if you know the correct Omssa specific mod number, you can insert a new record, or \n" +
+					"modify an existing one in UMOD_TABLE.csv, and run the ProteoAnnotator again. \n\n" +
+					"The -1 entries in OMSSA_ID column in UMOD_TABLE.csv represent the absence of correct Omssa-mod-identifier.\n" +
+					"If your desired modification is present in UMOD_TABLE.csv, but has a -1 in the corresponding OMSSA_ID column,\n" +
+					"you can replace the -1 with the correct omssa specific mod number, otherwise simply add a new row with the desired \n" +
+					"mod related information. \n" +
+					"Exiting ProteoAnnotator...";
+					
+					log.fatal(errormsg);
+					System.out.println(errormsg);
+					System.exit(0);
 				}
 			}
 		}catch(Exception e){
