@@ -373,11 +373,17 @@ public class ConstructSearchCommand {
 							String xmlForMod = null;
 							String [] thisMod = modifications[i].split(","); // Each record is comma separated
 							String varOrFixed = thisMod[4];
-							String site = thisMod[3]; 
+							String site = thisMod[3].trim(); 
 							String massDelta = thisMod[5];
 							if(varOrFixed.equalsIgnoreCase("TRUE")){
-								if(site.contains("term"))
+								if(site.equals("N-term"))
 									xmlForMod = "\t<note type=\"input\" label=\"residue, modification mass\">" + massDelta.concat("@").concat("[") + "</note>";
+								else if (site.equals("C-term"))
+									xmlForMod = "\t<note type=\"input\" label=\"residue, modification mass\">" + massDelta.concat("@").concat("]") + "</note>";
+								else if(site.equals("Protein N-term"))
+									xmlForMod = "\t<note type=\"input\" label=\"protein, N-terminal residue modification mass\">" + "[" + massDelta +"]" + "</note>";
+								else if(site.equals("Protein C-term"))
+									xmlForMod = "\t<note type=\"input\" label=\"protein, C-terminal residue modification mass\">" + "[" + massDelta +"]" + "</note>";
 								else
 									xmlForMod = "\t<note type=\"input\" label=\"residue, modification mass\">" + massDelta.concat("@").concat(site) + "</note>";
 							}else{

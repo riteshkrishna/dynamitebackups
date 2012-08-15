@@ -70,7 +70,7 @@ public class ResolveOmssaModificationIdentifiers {
 				String key = keys.next(); 
 				if(key.contains(Constants.SUBSTRING_TO_IDENTIFY_MOD_IN_SEARCHINPUT)){
 					String userInputForMod = searchInputContent.get(key).trim();
-					userInputForMod = userInputForMod.replaceAll("[^a-zA-Z0-9]", "##"); // replace all the non-alphanumeric characters by ##
+					userInputForMod = userInputForMod.replaceAll("[^a-zA-Z0-9-]", "##"); // replace all the non-alphanumeric and '-' characters by ##
 					String [] tokens = userInputForMod.split("##");
 					for(int i = 0 ; i < tokens.length ;i++){
 						int numericVal = -1;
@@ -79,6 +79,24 @@ public class ResolveOmssaModificationIdentifiers {
 						}catch(NumberFormatException ne){
 							continue;
 						}
+						
+						if(numericVal < 0){
+							String errormsg = "\n \n ** Error ** \n" +
+							"A negative mod = " + numericVal +" is not allowed. \n" +
+							"Please provide an existing and non-negative mod number from the Omssa_ID column in the resources/UMOD_TABLE.csv.\n" +
+							"Alternatively, if you know the correct Omssa specific mod number, you can insert a new record, or \n" +
+							"modify an existing one in UMOD_TABLE.csv, and run the ProteoAnnotator again. \n\n" +
+							"The -1 entries in OMSSA_ID column in UMOD_TABLE.csv represent the absence of correct Omssa-mod-identifier.\n" +
+							"If your desired modification is present in UMOD_TABLE.csv, but has a -1 in the corresponding OMSSA_ID column,\n" +
+							"you can replace the -1 with the correct omssa specific mod number, otherwise simply add a new row with the desired \n" +
+							"mod related information. \n" +
+							"Exiting ProteoAnnotator...";
+							
+							log.fatal(errormsg);
+							System.out.println(errormsg);
+							System.exit(0);
+						}
+						
 						omssaIdsToFind.add(numericVal);          
 						if(key.contains(Constants.SUBSTRING_FOR_FIXED_MOD_IN_SEARCHINPUT))
 							fixedModOrNot.add(1);
