@@ -110,8 +110,11 @@ public class Pipeline {
 			parserFileDelimiter					    = args[4];
 		}catch(NullPointerException e){
 			log.fatal("Unable to open input File(s)");
+			System.out.println("Unable to open input files");
 			System.exit(0);
 		}
+		
+		
 		/******************************************************************/
 		// Construct omssa command - store file
 		/******************************************************************/
@@ -165,9 +168,21 @@ public class Pipeline {
 				omssa_exec = inputs.get(Constants.OMSSA_EXECUTABLE);
 			if(inputs.containsKey(Constants.TANDEM_EXECUTABLE))
 				tandem_exec = inputs.get(Constants.TANDEM_EXECUTABLE);
+			
+			// Check if the executables exist or not
+			File checkOmssaExec = new File(omssa_exec);
+			if(!checkOmssaExec.exists())
+				throw new Exception("Omssa executable not found.");
+			File checkTandemExec = new File(tandem_exec);
+			if(!checkTandemExec.exists())
+				throw new Exception("X!Tandem executable not found.");
+			
 		}catch(Exception e){
-			log.fatal("Unable to find executables for Omsssa and X!Tandem");
-			e.printStackTrace();
+			String errMsg = "\n\n ** Error ** \n\n" + e.getMessage() + "\n";
+			errMsg = errMsg + "Please check the location of executables in resources/externalSetup.conf file.\n" +
+					"Exiting ProteoAnnotator...";
+			log.fatal(errMsg);
+			System.exit(0);
 		}
 		
 		ExecuteCommands ec = new ExecuteCommands();		

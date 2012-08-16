@@ -195,6 +195,36 @@ public class RunPipelineForWholeDirectory {
 		String parserInputFile = args[3];
 		String parserDelimiter = "=";
 		
+		// Create output directory if required, and do the necessary checks
+		FilenameFilter filter = new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return !name.startsWith(".");
+		    }
+		};
+		File dir = new File(outputMgfDir);
+		String[] children = dir.list();
+		
+		if(children != null){
+			children = dir.list(filter);
+			if(children.length >= 1){
+					String errMsg = "\n\n ** Error \n\n" +
+							"The provided directory is not empty. Please empty the directory or provide a new directory.\n" +
+					"Existing ProteoAnnotator\n";
+					log.fatal(errMsg);
+					System.out.println(errMsg);
+					System.exit(0);
+			}
+		}else{
+			boolean create = dir.mkdir();
+			if(!create){
+				String errMsg = "Unable to create output directory.\n" +
+				"Existing ProteoAnnotator";
+				log.fatal(errMsg);
+				System.out.println(errMsg);
+				System.exit(0);
+			}
+		}
+		
 		RunPipelineForWholeDirectory rp = new RunPipelineForWholeDirectory(inputTemplate,inputMgfDir,outputMgfDir,inputDelimiter,parserInputFile,parserDelimiter);
 		ArrayList<String[]> comds = rp.createPipelineCommands();
 		for(int i = 0; i < comds.size(); i++){
