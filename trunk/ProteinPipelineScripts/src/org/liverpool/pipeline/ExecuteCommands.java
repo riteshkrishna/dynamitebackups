@@ -36,10 +36,15 @@ public class ExecuteCommands {
 			while((line = br.readLine()) != null){
 				log.info(line);
 			}
+						
 			log.info("Search Engine finished..");
+			
 		}catch(Exception ex){
-			log.fatal(ex.getMessage());
-			ex.printStackTrace();
+			String errMsg = "\n\n **Error** \n\n" +
+					"Unable to execute commands." +
+					"Exiting ProteoAnnotator...";
+			log.fatal(ex.getMessage() + errMsg);
+			System.exit(0);
 		}
 	}
 	
