@@ -225,7 +225,10 @@ public class CreateSummaryOfTheCompleteDataset {
 						String content = new String(buffer);
 						content = content.trim();
 						
-						out.write("\n" + content + "\t" + currentFile.getAbsolutePath());
+						//out.write("\n" + content + "\t" + currentFile.getAbsolutePath());
+						// Write the name of input file where the identification comes from.
+						String parent_mgf = currentFile.getParentFile().getName().replace("dir","").concat(".mgf");
+						out.write("\n" + content + "\t" + parent_mgf);
 					}
 				}
 				
