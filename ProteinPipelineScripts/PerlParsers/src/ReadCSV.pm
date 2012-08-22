@@ -161,8 +161,9 @@ sub ParseCSV{
 				}
 		  
 				#Get the data out of the mapped columns
-				#my $spec_index = $cells[$mapped_columns{"spec_index"}]; 	#spec_index no longer used
-				my $spec_title = $cells[$mapped_columns{"spec_title"}];
+				#my $spec_index = $cells[$mapped_columns{"spec_index"}]; 	
+				#my $spec_title = $cells[$mapped_columns{"spec_title"}];
+				my $spec_title = "index=".$cells[$mapped_columns{"spec_index"}];
 				my $seq = uc($cells[$mapped_columns{"seq"}]); #omssa makes the residues with mods lower case - change them to upper
 				
 				if(!$seq){
