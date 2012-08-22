@@ -227,8 +227,18 @@ public class CreateSummaryOfTheCompleteDataset {
 						
 						//out.write("\n" + content + "\t" + currentFile.getAbsolutePath());
 						// Write the name of input file where the identification comes from.
-						String parent_mgf = currentFile.getParentFile().getName().replace("dir","").concat(".mgf");
-						out.write("\n" + content + "\t" + parent_mgf);
+						String parent_mgf = currentFile.getParentFile().getName();
+						if(parent_mgf.contains("dir"))
+							parent_mgf = parent_mgf.replace("dir","").concat(".mgf");
+						 try{
+							 Scanner scanner = new Scanner(content);
+							 while(scanner.hasNextLine()){
+								 String line = scanner.nextLine() + "\t" + parent_mgf + "\n";
+								 out.write(line);
+							 }
+						 }catch(Exception e){
+							 
+						 }
 					}
 				}
 				
