@@ -66,8 +66,6 @@ my @REQUIRED_PARAMS = ("Software name","Provider","Parent mass type","Fragment m
 my ($tmp1,$tmp2) = readCSVParams($paramFile,\@REQUIRED_PARAMS); 
 our %params = %{$tmp1};
 our %searchMods = %{$tmp2};
-#print Dumper (%params);
-
 
 my $config_exists = (-e $configFile);
 #print("\nconfig file ".$configFile." exists?".$config_exists."\n");
@@ -321,8 +319,6 @@ my %peptides;
 		
 	    my @split1 = split/\,/,$pep_hit->mods();
 	    
-		
-		
 		for(my $i=0 ; $i<scalar(@split1) ; $i++){	
 		
 			my @split2 = split/\:/,$split1[$i];		
@@ -460,9 +456,9 @@ sub GetMoleculeCollection{
 							my $unimod_def;
 							
 							my $nospace = $split2[0];
-							$nospace =~ s/\s+//g;
-							$nospace =~ s/^\s//;
-							$nospace =~ s/\s$//;
+							#$nospace =~ s/\s+//g;
+							#$nospace =~ s/^\s//;
+							#$nospace =~ s/\s$//;
 							my $tmp_mod = $searchMods{$nospace};
 							#my $tmp_mod = $searchMods{$split2[0]};
 							
