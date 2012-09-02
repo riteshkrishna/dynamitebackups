@@ -129,7 +129,16 @@ public class RunPipelineForWholeDirectory {
 				}
 			};
 			File [] mgfFiles = dir.listFiles(filter);
-		
+			
+			// Signal error if no MGF file in the input directory  
+			if(mgfFiles.length == 0){
+				String errMsg = "No mgf file found in the input directory.\n" +
+				"Existing ProteoAnnotator";
+				log.fatal(errMsg);
+				System.out.println(errMsg);
+				System.exit(0);
+			}
+			
 			for(int i = 0; i < mgfFiles.length; i++){
 				File mgf = mgfFiles[i];
 				String fullpathname = mgf.getCanonicalPath();
@@ -156,6 +165,7 @@ public class RunPipelineForWholeDirectory {
 				String [] runCommand = {outputPath,inputFileForSe,this.inputDelimiter,this.parserInputFile,this.parserDelimiter};
 				commands.add(runCommand);
 			}
+			
 		}catch(Exception e){
 			log.fatal("Problem with input diretory with mgf files.");
 			e.printStackTrace();

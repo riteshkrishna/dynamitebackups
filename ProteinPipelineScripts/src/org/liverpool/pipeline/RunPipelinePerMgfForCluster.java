@@ -120,6 +120,15 @@ public class RunPipelinePerMgfForCluster {
 			String fileName = mgf.getName();
 			if(fileName.contains(".mgf"))
 				fileName = fileName.replace(".mgf","");
+			else{
+				// Signal error that no MGF file provided..
+				String errMsg = "The provided file is not an MGF file. Please check the file and ensure it has an .mgf extension.\n" +
+				"Existing ProteoAnnotator";
+				log.fatal(errMsg);
+				System.out.println(errMsg);
+				System.exit(0);
+			}
+			
 			String outputPath = this.outputDirToStoreOutputs +  File.separator + "dir"+fileName;
 			
 			String filledTemplate = this.inputTemplate.replace(textToReplace_input, fullpathname);
