@@ -146,7 +146,7 @@ public class PerformPostProcessingUsingMzLib {
 			String mzlib_proteogroup_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar ProteoGrouper " + summarymzIdentFile + " " + summarymzIdentFile + " -requireSIIsToPassThreshold true -verboseOutput  false -cvAccForSIIScore MS:1001874 -logTransScore true -includeOnlyBestScorePerPep false"; 
 			
 			//java -jar -Xmx1024m mzidentml-lib.jar empai Toxo1DSFIF.mzid Toxo1DSFIF.mzid  -fastaFile /Users/riteshk/Ritesh_Work/Toxo/ToxoDB/combined_gene_models.fasta -accessionSplitRegex "/ /" 
-			//String mzlib_empai_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar empai "  + summarymzIdentFile + " " + summarymzIdentFile + " -fastaFile " + database_file + " -accessionSplitRegex \"/ /\" "; // Pass as array becasue we need  exactly - "/ /"               
+			//String mzlib_empai_command = "java -jar lib/mzidentml-lib.jar empai "  + summarymzIdentFile + " " + summarymzIdentFile + " -fastaFile " + database_file + " -accessionSplitRegex \"/ /\" "; // Pass as array becasue we need  exactly - "/ /"               
 			String [] mzlib_empai_command = new String[11];
 			mzlib_empai_command[0] = "java";
 			mzlib_empai_command[1] = "-jar";
@@ -172,14 +172,12 @@ public class PerformPostProcessingUsingMzLib {
 			//System.out.println(mzlib_empai_command);
 			
 			Runtime rt = Runtime.getRuntime();
-			int exitVal = 0;
-			//System.out.println(csv2mzid_command);
-	        
+			
 			Process proc = rt.exec(csv2mzid_command);
 			InputStream stdin = proc.getInputStream();
 	        InputStream stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -191,7 +189,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -203,7 +201,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -214,7 +212,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -226,7 +224,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -237,7 +235,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
@@ -248,7 +246,7 @@ public class PerformPostProcessingUsingMzLib {
 			stdin = proc.getInputStream();
 	        stderr = proc.getErrorStream();
 	        flushStream(stdin,stderr);
-	        proc.waitFor(); // check the use....
+	        proc.waitFor(); 
 	        stdin.close();
 	        stderr.close();
 	        proc.exitValue();
