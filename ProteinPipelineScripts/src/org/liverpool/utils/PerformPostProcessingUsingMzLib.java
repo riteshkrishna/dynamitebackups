@@ -20,12 +20,12 @@ public class PerformPostProcessingUsingMzLib {
 	 * 
 	 * @param pipelineSummaryFile
 	 * @param omssaLikeOutputFile
-	 * @param fdrThreshold
+	 * @param csvThreshold
 	 * @param decoyString
 	 */
-	public int createOmssaLikeCSV(String pipelineSummaryFile,String omssaLikeOutputFile,double fdrThreshold,String decoyString){
+	public int createOmssaLikeCSV(String pipelineSummaryFile,String omssaLikeOutputFile,double csvThreshold,String decoyString){
 		String delimiter = "\t";
-		ConvertWholeSummaryFileToOmssaCSVFormat cv = new ConvertWholeSummaryFileToOmssaCSVFormat(pipelineSummaryFile, fdrThreshold, delimiter, decoyString, omssaLikeOutputFile);
+		ConvertWholeSummaryFileToOmssaCSVFormat cv = new ConvertWholeSummaryFileToOmssaCSVFormat(pipelineSummaryFile, csvThreshold, delimiter, decoyString, omssaLikeOutputFile);
 		cv.createOmssaLikeFile();
 		
 		//log.info("Post-processing - csv summary file created.");
@@ -81,15 +81,16 @@ public class PerformPostProcessingUsingMzLib {
 	}
 	/**
 	 * 
-	 * @param proteoInput_1
-	 * @param proteoInput_2
+	 * @param proteoInput_search
+	 * @param proteoInput_database
 	 * @param pipelineSummaryFile
 	 * @param omssaLikeOutputFile
+	 * @param csvThreshold
 	 * @param fdrThreshold
 	 * @param summarymzIdentFile
 	 */
 	public void performPostProcessing(String proteoInput_search,String proteoInput_database,String pipelineSummaryFile,
-									 String omssaLikeOutputFile,double fdrThreshold,String summarymzIdentFile){
+									 String omssaLikeOutputFile,double csvThreshold, double fdrThreshold,String summarymzIdentFile){
 		
 		try{
 			
@@ -123,7 +124,7 @@ public class PerformPostProcessingUsingMzLib {
 			}
 			
 			// Create Omssa like file
-			int omssa_done = createOmssaLikeCSV(pipelineSummaryFile,omssaLikeOutputFile,fdrThreshold,decoyString);
+			int omssa_done = createOmssaLikeCSV(pipelineSummaryFile,omssaLikeOutputFile,csvThreshold,decoyString);
 		
 			if(omssa_done != 1){
 				String errorMessage = "Post-processing : Unbale to convert the Whole Summary file to csv format ";
@@ -135,17 +136,29 @@ public class PerformPostProcessingUsingMzLib {
 			
 			// create commands
 			//java -jar -Xmx1024m mzidentml-lib.jar  Csv2mzid Toxo1DSFIF.csv Toxo1DSFIF.mzid -paramsFile toxo_proteoannotator_params.csv -cvAccessionForPSMOrdering "MS:1001874" -decoyRegex Rev_
-			String csv2mzid_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar  Csv2mzid " +  omssaLikeOutputFile + " " + summarymzIdentFile +" -paramsFile " + temp_param_file.getAbsolutePath() + " -cvAccessionForPSMOrdering \"MS:1001874\" -decoyRegex "+ decoyString;
+			String csv2mzid_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar  Csv2mzid " +  omssaLikeOutputFile + " " + summarymzIdentFile +" -paramsFile " + temp_param_file.getAbsolutePath() + " -cvAccessionForPSMOrdering MS:1001874 -decoyRegex "+ decoyString;
 			
 			//java -jar -Xmx1024m mzidentml-lib.jar Threshold Toxo1DSFIF.mzid Toxo1DSFIF.mzid -isPSMThreshold true -cvAccForScoreThreshold "MS:1001874" -threshValue 0.01 -scoreLowToHigh true
 			String mzlib_threshold_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar Threshold "+ summarymzIdentFile + " " + summarymzIdentFile + " -isPSMThreshold true -cvAccForScoreThreshold MS:1001874 -threshValue "+ fdrThreshold + " -scoreLowToHigh true";
 			//String mzlib_threshold_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar Threshold /Users/riteshk/Ritesh_Work/TestSpace/mzId-Testing/Andy-mzIdLibrary/Test/sfif.mzid " + threshold_summarymzIdentFile + " -isPSMThreshold true -cvAccForScoreThreshold MS:1001874 -threshValue  0.01  -scoreLowToHigh true";
 			
 			//java -jar -Xmx1024m mzidentml-lib.jar ProteoGrouper Toxo1DSFIF.mzid Toxo1DSFIF.mzid  -requireSIIsToPassThreshold true -verboseOutput  false -cvAccForSIIScore "MS:1001874" -logTransScore true -includeOnlyBestScorePerPep false
-			String mzlib_proteogroup_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar ProteoGrouper " + summarymzIdentFile + " " + summarymzIdentFile + " -requireSIIsToPassThreshold true -verboseOutput  false -cvAccForSIIScore \"MS:1001874\" -logTransScore true -includeOnlyBestScorePerPep false"; 
+			String mzlib_proteogroup_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar ProteoGrouper " + summarymzIdentFile + " " + summarymzIdentFile + " -requireSIIsToPassThreshold true -verboseOutput  false -cvAccForSIIScore MS:1001874 -logTransScore true -includeOnlyBestScorePerPep false"; 
 			
-			//java -jar -Xmx1024m mzidentml-lib.jar empai Toxo1DSFIF.mzid Toxo1DSFIF.mzid  -fastaFile /Users/riteshk/Ritesh_Work/Toxo/ToxoDB/combined_gene_models.fasta -accessionSplitRegex "/ /"
-			String mzlib_empai_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar empai "  + summarymzIdentFile + " " + summarymzIdentFile + " -fastaFile " + database_file + " -accessionSplitRegex \"/ /\" ";               
+			//java -jar -Xmx1024m mzidentml-lib.jar empai Toxo1DSFIF.mzid Toxo1DSFIF.mzid  -fastaFile /Users/riteshk/Ritesh_Work/Toxo/ToxoDB/combined_gene_models.fasta -accessionSplitRegex "/ /" 
+			//String mzlib_empai_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar empai "  + summarymzIdentFile + " " + summarymzIdentFile + " -fastaFile " + database_file + " -accessionSplitRegex \"/ /\" "; // Pass as array becasue we need  exactly - "/ /"               
+			String [] mzlib_empai_command = new String[11];
+			mzlib_empai_command[0] = "java";
+			mzlib_empai_command[1] = "-jar";
+			mzlib_empai_command[2] = "-Xmx1024m";
+			mzlib_empai_command[3] = "lib/mzidentml-lib.jar";
+			mzlib_empai_command[4] = "empai";
+			mzlib_empai_command[5] = summarymzIdentFile;
+			mzlib_empai_command[6] = summarymzIdentFile;
+			mzlib_empai_command[7] = "-fastaFile";
+			mzlib_empai_command[8] = database_file;
+			mzlib_empai_command[9] = "-accessionSplitRegex";
+			mzlib_empai_command[10] = "/ /";
 			
 			//java -jar -Xmx1024m mzidentml-lib.jar MzIdentMLToCSV Toxo1DSFIF.mzid  Toxo1DSFIF_processed.csv -exportType exportProteinGroups
 			String  mzlib_mztocsv_command = "java -jar -Xmx1024m lib/mzidentml-lib.jar MzIdentMLToCSV "+ summarymzIdentFile + " " + summarymzIdentFile.concat("_processed.csv") + " -exportType exportProteinGroups";
@@ -156,9 +169,11 @@ public class PerformPostProcessingUsingMzLib {
 			//java -jar -Xmx1024m mzidentml-lib.jar MzIdentMLToCSV Toxo1DSFIF.mzid  Toxo1DSFIF_processed_pags.csv -exportType exportRepProteinPerPAGOnly
 			String mzlib_mztocsv_command_2 = "java -jar -Xmx1024m lib/mzidentml-lib.jar MzIdentMLToCSV " + summarymzIdentFile + " " + summarymzIdentFile.concat("_processed_pags.csv") + " -exportType exportRepProteinPerPAGOnly";
 	
+			//System.out.println(mzlib_empai_command);
+			
 			Runtime rt = Runtime.getRuntime();
 			int exitVal = 0;
-			System.out.println(csv2mzid_command);
+			//System.out.println(csv2mzid_command);
 	        
 			Process proc = rt.exec(csv2mzid_command);
 			InputStream stdin = proc.getInputStream();
@@ -256,16 +271,17 @@ public class PerformPostProcessingUsingMzLib {
 		/*
 		String proteoInput_search = "inputFiles/inputFileTemplate.txt";
 		String proteoInput_database = "inputFiles/mzIdentMLParser_inputFile.txt";
-		String pipelineSummaryFile = "/Users/riteshk/Ritesh_Work/TestSpace/mzId-Testing/Andy-mzIdLibrary/Test/WholeSummary_sfif.txt";
-		String omssaLikeOutputFile = "/Users/riteshk/Ritesh_Work/TestSpace/mzId-Testing/Andy-mzIdLibrary/Test/WholeSummary_sfif.csv";
+		String pipelineSummaryFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/SearchResults/WholeSummary_sfif.txt";
+		String omssaLikeOutputFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess/WholeSummary_sfif.csv";
+		double csvThreshold = 0.1;
 		double fdrThreshold = 0.01;
-		String summarymzIdentFile = "/Users/riteshk/Ritesh_Work/TestSpace/mzId-Testing/Andy-mzIdLibrary/Test/sfif.mzid";
-		 */
+		String summarymzIdentFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess/sfif.mzid";
+		*/
 		try{
 			
-			if(args.length != 6){
+			if(args.length != 7){
 				System.out.println("Arguments: proteoAnnotator-searchInput.txt proteoAnnotator-databaseInput.txt " +
-						"proteoAnnotator-SummaryFile.txt output.csv fdr_threshold output_mzidentMLFile.mzid");
+						"proteoAnnotator-SummaryFile.txt output.csv csv_threshold fdr_threshold output_mzidentMLFile.mzid");
 				System.exit(0);
 			}
 			
@@ -273,11 +289,12 @@ public class PerformPostProcessingUsingMzLib {
 			String proteoInput_database = args[1];
 			String pipelineSummaryFile = args[2];
 			String omssaLikeOutputFile = args[3];
-			double fdrThreshold = Double.parseDouble(args[4]);
-			String summarymzIdentFile = args[5];
+			double csvThreshold = Double.parseDouble(args[4]);
+			double fdrThreshold = Double.parseDouble(args[5]);
+			String summarymzIdentFile = args[6];
 			
 			PerformPostProcessingUsingMzLib pp = new PerformPostProcessingUsingMzLib();
-			pp.performPostProcessing(proteoInput_search, proteoInput_database, pipelineSummaryFile, omssaLikeOutputFile, fdrThreshold, summarymzIdentFile);
+			pp.performPostProcessing(proteoInput_search, proteoInput_database, pipelineSummaryFile, omssaLikeOutputFile, csvThreshold,fdrThreshold, summarymzIdentFile);
 			
 		}catch(NumberFormatException e){
 			System.out.println("Error : Check the parameters and the threshold used. Not able to process FDR threshold");
