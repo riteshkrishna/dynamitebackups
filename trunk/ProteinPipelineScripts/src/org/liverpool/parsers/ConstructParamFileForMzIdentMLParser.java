@@ -213,7 +213,13 @@ public class ConstructParamFileForMzIdentMLParser {
 			out.close();
 			fstream.close();
 		}catch(IOException e){
-			e.printStackTrace();
+			String errMsg = "** Error : Can't create param files. " +
+					"\n Error in the input files. Please check the content of the input parameter files.\n" +
+					"Does it have all the keywords intact ? If yes, then do we have the correct corresponding files for \n" +
+					"search input, and database input ?";
+			log.fatal(errMsg);
+			System.out.println(errMsg);
+			System.exit(1);
 		}
 	}
 	

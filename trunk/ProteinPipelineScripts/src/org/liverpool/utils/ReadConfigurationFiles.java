@@ -43,7 +43,7 @@ public class ReadConfigurationFiles {
 				String key = lineContent.keySet().iterator().next();
 				String value = lineContent.get(key);
 				inputs.put(key, value);
-				log.info("Read :: " + key + " = " + value);
+				//log.info("Read :: " + key + " = " + value);
 			}
 		}
 		finally{
