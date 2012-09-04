@@ -194,15 +194,15 @@ public class RunPipelineForWholeDirectory {
 		*/
 		
 		if(args.length != 4){
-			System.out.println("Arguments needed : inputTemplateFile inputMgfDir outputMgfDir parserInputFile");
+			System.out.println("Arguments needed : inputTemplateFile parserInputFile inputMgfDir outputMgfDir parserInputFile");
 			System.exit(0);
 		}
 		
 		String inputTemplate   = args[0];
-		String inputMgfDir     = args[1];
-		String outputMgfDir    = args[2];
-		String inputDelimiter  = "=";
-		String parserInputFile = args[3];
+		String parserInputFile = args[1];
+		String inputMgfDir     = args[2];
+		String outputMgfDir    = args[3];
+		String inputDelimiter  = "=";		
 		String parserDelimiter = "=";
 		
 		// Create output directory if required, and do the necessary checks

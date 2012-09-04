@@ -170,15 +170,15 @@ public class RunPipelinePerMgfForCluster {
 		PropertyConfigurator.configure(logProperties);
 		
 		if(args.length != 4){
-			System.out.println("Arguments needed : inputTemplateFile inputMgfFile outputMgfDir parserInputFile");
+			System.out.println("Arguments needed : inputTemplateFile parserInputFile inputMgfFile outputMgfDir parserInputFile");
 			System.exit(0);
 		}
 		
 		String inputTemplate    = args[0];
-		String inputMgfFile     = args[1];
-		String outputMgfDir     = args[2];
+		String parserInputFile  = args[1];
+		String inputMgfFile     = args[2];
+		String outputMgfDir     = args[3];
 		String inputDelimiter   = "=";
-		String parserInputFile  = args[3];
 		String parserDelimiter  = "=";
 		
 		// Create output directory if required, and do the necessary checks
