@@ -241,8 +241,9 @@ public class ConstructSearchCommand {
 				}
 			}
 			else{
-				log.error("Invalid input keywords found in the input file");
-				throw new Exception();
+				String errMsg = "Invalid input keywords found in the input file"; 
+				log.error(errMsg);
+				throw new Exception(errMsg);
 			}
 			
 			// Once the template has been filled with user-given entries, we must remove the unused "{{ text }}"
@@ -251,8 +252,9 @@ public class ConstructSearchCommand {
 			log.info("Created Command :: "+ command);
 			
 		}catch(Exception ex){
-			log.fatal("Failed to create command.");
-			ex.printStackTrace();
+			log.fatal("Failed to create command." + ex.getMessage());
+			System.out.println(ex.getMessage());
+			System.exit(1);
 		}
 		return command;
 	}
