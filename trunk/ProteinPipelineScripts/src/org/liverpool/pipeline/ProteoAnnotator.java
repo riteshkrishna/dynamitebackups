@@ -20,7 +20,7 @@ public class ProteoAnnotator {
     public static String single_mode_Usage = " single_mode -searchInput searchInput.txt -databaseInput databaseInput.txt -inputMgf inputMgfFile -outputResultDir outputDirectory";
     public static String gff_operation_fasta_Usage = "gff_operation-fasta -gff3 inputGff.gff";
     public static String gff_operation_map_Usage = "gff_operation-map -gff3 inputGff.gff -summaryFile WholeDatasetSummary.txt " +
-    												"-decoyIdentifier decoyIdentifier -output-gff3 outputGff.gff";
+    												"-decoyIdentifier decoyIdentifier -fdrThreshold 0.05 -output-gff3 outputGff.gff";
     
     
     
@@ -139,7 +139,7 @@ public class ProteoAnnotator {
 					ValidateGFF.main(prog_args);
 				}
 			}else if(args[0].trim().equals("gff_operation-map")){
-				if(args.length != 9){
+				if(args.length != 11){
 					userFeedback+=gff_operation_map_Usage;
 					System.out.println("Expected Usage for option - gff_operation-map");
 					System.out.println(userFeedback);
@@ -148,11 +148,13 @@ public class ProteoAnnotator {
 					String summaryFile     =  pa.getCmdParameter(args, "summaryFile", true);
 					String decoyIdentifier =  pa.getCmdParameter(args, "decoyIdentifier", true);
 					String outputGffFile   =  pa.getCmdParameter(args, "output-gff3", true);
-					String [] prog_args = new String[4];
+					String fdrThreshold   =  pa.getCmdParameter(args, "fdrThreshold", true);
+					String [] prog_args = new String[5];
 					prog_args[0] = gffFile;
 					prog_args[1] = summaryFile;
 					prog_args[2] = decoyIdentifier;
 					prog_args[3] = outputGffFile;
+					prog_args[4] = fdrThreshold;
 					ValidateGFF.main(prog_args);
 				}
 			}else if(args[0].trim().equals("create_summary")){
