@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
+
 public class ValidateGFF {
 	
 	HashMap<String, ArrayList<CDS_Information>> cdsRecords;
@@ -194,21 +195,17 @@ public class ValidateGFF {
 	 * @return
 	 */
 	String parseAttributeFieldToExtractId (String attribute) throws Exception{
-		String id = null;
+		String id = new String();
 		
 		String [] splitOnColon = attribute.split(";",-1);
 		if(splitOnColon.length == 0){
 			String [] keyVal = attribute.split("=",-1);
 			if(keyVal.length == 0){
-				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
-				System.out.println(exMessage);
-				throw new Exception(exMessage);
-			}else if (!keyVal[0].equals("ID") ){
-				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
-				System.out.println(exMessage);
-				throw new Exception(exMessage);
+				System.out.println("No ID found for the CDS entry");
+			}else if (keyVal[0].compareToIgnoreCase("ID")  < 0){
+				System.out.println("No ID found for the CDS entry");
 			}else{
-				id  = new String(keyVal[1]);
+				id  = keyVal[1];
 			}
 		}else{
 			boolean found = false;
@@ -218,10 +215,10 @@ public class ValidateGFF {
 				String [] keyVal = subAttr.split("=",-1);
 				if(keyVal.length == 0){
 					System.out.println("No ID found for the CDS entry");
-				}else if (!keyVal[0].equals("ID")){
+				}else if (keyVal[0].compareToIgnoreCase("ID")  < 0){
 					System.out.println("No ID found for the CDS entry");
 				}else{
-					id = new String(keyVal[1]);
+					id = keyVal[1];
 					found = true;
 				}
 				if(found)
@@ -229,15 +226,16 @@ public class ValidateGFF {
 			}
 			
 			if(!found){
-				String exMessage = "No ID found for the CDS entry at attribute : " + attribute;
-				System.out.println(exMessage);
-				throw new Exception(exMessage);
+				System.out.println("No ID found for the CDS entry");
+				throw new Exception();
 			}
 			
 		}
 		
 		return id;
 	}
+	
+
 	
     /**
 	 * 
@@ -272,11 +270,6 @@ public class ValidateGFF {
 			
 			FileWriter fstream = new FileWriter(outputGffFile);
 			BufferedWriter out = new BufferedWriter(fstream);
-			
-		    // Variables needed during processing of ##FASTA file
-		    String accn = new String();
-			String seq = new String();
-			int fastaCount = 0;
 			
 			while((line = in.readLine()) != null){
 				
@@ -355,14 +348,44 @@ public class ValidateGFF {
 			
 			in.close();
 			
-    	   // Do the mapping and writing  part here.....
+			// Perform Chromosome mapping
 			for(int i = 0; i < proteinHits.size(); i++){
 				ProteinResults pr = proteinHits.get(i);
-				String mappedGffEntry = mapToGff(pr);
-				if(mappedGffEntry != null)
-					out.write(mappedGffEntry);
+				String[]  co_ords = new String[2];
+				long start_map,end_map;
+				try{
+					co_ords = mapToGff(pr);
+			  
+					// Take care of the negative strand reporting in GFF
+					start_map = Long.parseLong(co_ords[0]);
+					end_map  =  Long.parseLong(co_ords[1]);
+					if(end_map < start_map){
+						long tmp = start_map;
+						start_map = end_map;
+						end_map = tmp;
+			  		}
+				}catch(Exception e){
+					//System.out.println("Exception - " + pr.getAccession() +" \t"+ pr.getstart() +" \t"+ pr.getEnd());
+					//e.printStackTrace();
+					//System.exit(0);
+					continue;
+				}
 				
+				String accession = pr.getAccession();
+				ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
+				String feature = "peptide";
+				String score = ".";
+				String mappedStartLocation = Long.toString(start_map);
+				String mappedEndLocation = Long.toString(end_map);
+				
+				
+				String attr = "ID=pep_"+ accession + "_" + i + ";description=peptide;Derives_from=" + accession;
+	    		// Just use the information from the first CDS entry with mapped start and end locations
+	    		String gffEntry = cdsColl.get(0).getSeqID() + "\t" + cdsColl.get(0).getSource() + "\t" + feature + "\t" + mappedStartLocation 
+	    		+ "\t" + mappedEndLocation + "\t" + score + "\t" + cdsColl.get(0).getStrand()  + "\t" + cdsColl.get(0).getSePhase() + "\t" + attr + "\n";
+				out.write(gffEntry);
 			}
+			  
 			out.close();
 			
 		}catch(IOException e){
@@ -376,45 +399,90 @@ public class ValidateGFF {
 		}
     }
     
-    /*
-     * 
+    /**
+     * Map the co-ordinates
+     * Returns a String array - idx=0=start, idx=1=end and idx=2=chr
      */
-    String mapToGff(ProteinResults pr){
+	public String[] mapToGff(ProteinResults pr){
+    	String[] gffMapping = new String[3];
     	
-    		String gffMapping = new String();
+    	// Get accession from the protein object
+    	String accession = pr.getAccession();
     	
-    		// Get data from the protein object
-    		String accession = pr.getAccession();
-    		boolean decoyOrNot = pr.getDecoyOrNot();
-    		long start = pr.getstart();
-    		long end = pr.getEnd();
+    	// return if no key found
+    	if(!cdsRecords.containsKey(accession))
+    		return null;
     	
-    		// return if no key found
-    		if(!cdsRecords.containsKey(accession))
-    			return null;
+    	//...find the cds this range falls into...
+    	ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
+    			
+    	long[] mapped_cords = determineTheLocationOfSeqOnCds(pr, cdsColl);
     	
-    		// otherwise continue...
-    		ArrayList<CDS_Information> cdsColl = cdsRecords.get(accession);
-    		
-    		// sort the cdsColl according to the start position...
-    		cdsColl = sortCDSAccordingToStartPosition(cdsColl);
+    	gffMapping[0] = Long.toString(mapped_cords[0]);
+    	gffMapping[1] = Long.toString(mapped_cords[1]);
+    	gffMapping[2] = cdsRecords.get(accession).get(0).seqid;
     	
-    		long cdsStartLocation = cdsColl.get(0).getStart();
+    	return gffMapping;
+    }
+
+    /**
+     * 
+     * @param pr
+     * @param cdsColl
+     * @return
+     */
+    long[] determineTheLocationOfSeqOnCds(ProteinResults pr, ArrayList<CDS_Information> cdsColl){
+    	long[] gffEntry = new long[2];
     	
-    		long mappedStartLocation = cdsStartLocation + start * 3;
-    		long mappedEndLocation   = cdsStartLocation + end * 3;
-    		
-    		try{
-    		//...find the cds this range falls into...
-    		gffMapping = determineTheLocationOfSeqOnCds(accession, cdsColl, mappedStartLocation,mappedEndLocation);
-    		}catch(Exception e){
-    			//e.printStackTrace();
-        	}
-    		return gffMapping;
+    	// Get locations from the protein object
+    	long start = pr.getstart();
+    	long end = pr.getEnd();
+  
+    	// sort the CDS collection according to the strand
+    	ArrayList<CDS_Information> sortedCDS = sortCDSAccordingToStartPosition(cdsColl);
+
+    	long mapped_start = getMappedCordinates(start, sortedCDS);
+    	long mapped_end   = getMappedCordinates(end, sortedCDS);
+    	
+    	gffEntry[0] = mapped_start;
+    	gffEntry[1] = mapped_end;
+    	
+    	return gffEntry;
+    }
+    
+
+    /**
+     * 
+     * @param number
+     * @param cdsColl
+     * @return
+     */
+    long getMappedCordinates(long number, ArrayList<CDS_Information> cdsColl){
+    	long mappedCord = 0;
+    	
+    	// compute the cumm array
+    	long [] cummArray = cumulativeStartPositions(cdsColl);
+    	//long number_toMap = (number - 1) * 3;
+    	long number_toMap = number * 3;
+    	
+    	int idx = determineTheIndexInCummulativeArray(number_toMap, cummArray);
+    	
+    	long shift = cummArray[idx] - number_toMap;
+    	
+    	if(cdsColl.get(0).getStrand().contains("+")){
+    		long end_cds = cdsColl.get(idx).getEnd();
+    		mappedCord = end_cds - shift;
+    	}else{
+    		long start_cds = cdsColl.get(idx).getStart();
+    		mappedCord = start_cds + shift;
+    	}
+    	
+    	return mappedCord;
     }
     
     /**
-     * Sort the CDS record, with the ascending order of the start position.
+     * Sort the CDS record, with the ascending or descending order of the start position. If the CDS is on +ve strand
+     * then sort in ascending order, otherwise, sort in descending order.
      * 
      * @param cdsColl
      * @return
@@ -422,10 +490,17 @@ public class ValidateGFF {
     ArrayList<CDS_Information> sortCDSAccordingToStartPosition(ArrayList<CDS_Information> cdsCollection){
     	
     	ArrayList<CDS_Information> cdsColl = new ArrayList<CDS_Information>(cdsCollection); 
-    		
+    	
+    	String strand = cdsCollection.get(0).getStrand();
+    	boolean sortAscending = false;
+    	
+    	if(strand.contains("+"))
+    		sortAscending = true;
+    			
+    	// Ascending sort...
     	for(int i =  0; i < cdsColl.size() - 1; i++){
-    		CDS_Information cds_i = cdsColl.get(i);
     		for(int j = i+1; j < cdsColl.size(); j++){
+    			CDS_Information cds_i = cdsColl.get(i);
     			CDS_Information cds_j = cdsColl.get(j);
     			if(cds_i.getStart() > cds_j.getStart()){
     				CDS_Information temp = cds_i;
@@ -434,135 +509,71 @@ public class ValidateGFF {
     			}
     		}
     	}
+    	
+    	// If we need it in descending order, then reverse the sorted array
+    	if(!sortAscending){
+    		for(int i = cdsColl.size() - 1; i >= 0; i--){
+    			int j = cdsColl.size() - 1 - i;
+    			if(j < i){
+    				CDS_Information temp = cdsColl.get(i);
+    				cdsColl.set(i, cdsColl.get(j));
+    				cdsColl.set(j, temp);
+    			}
+    		}
+    	}
+    	
     	return cdsColl;
+    	
     }
     
     /**
      * 
+     * @param cdsCollection
+     * @return
      */
-    String  determineTheLocationOfSeqOnCds(String accession, ArrayList<CDS_Information> cdsColl, long mappedStartLocation, long mappedEndLocation){
+    long [] cumulativeStartPositions(ArrayList<CDS_Information> cdsCollection){
+    	long [] cummStartPosition = new long[cdsCollection.size()];
     	
-    	String gffEntry = new String();
-    	
-    	// sort the cdsColl according to the start position...
-    	cdsColl = sortCDSAccordingToStartPosition(cdsColl);
-    	
-    	
-    	ArrayList<CDS_Information> matchedIndices = new ArrayList<CDS_Information>();
-    	boolean foundEnd = false;
-    	boolean shiftForEndPosition = false;
-    	
-    	for(int i = 0 ; i < cdsColl.size(); i++){
-    		long cds_start = cdsColl.get(i).getStart();
-    		long cds_end = cdsColl.get(i).getEnd();
-    		
-    		if(mappedStartLocation >= cds_start && mappedStartLocation <= cds_end){
-    			// Case - Contained within the CDS
-    			if(mappedEndLocation <= cds_end){
-    				foundEnd = true;
-        			matchedIndices.add(cdsColl.get(i));
-        			break;
-        			
-        		}else{
-        			for(int j = i+1; (j < cdsColl.size()) && (foundEnd == false); j++){
-        				long cds_start_2 = cdsColl.get(j).getStart();
-        	    		long cds_end_2 = cdsColl.get(j).getEnd();
-        	    		// Case - Contained across CDS
-        	    		if(mappedEndLocation >= cds_start_2 && mappedEndLocation <= cds_end_2){
-        	    			foundEnd = true;
-        	    			for (int l = i; l <= j ; l++)
-        	    				matchedIndices.add(cdsColl.get(l));
-        	    			break;
-        	    		}
-        	    		
-        	    		// Case - falls somewhere after one CDS, but before the next or the last CDS
-        	    		// This means that the end needs to be "shifted" to the next CDS
-        	    		if(mappedEndLocation < cds_start_2){ 
-        	    			foundEnd = true;
-        	    			shiftForEndPosition = true;
-        	    			for (int l = i; l <= j ; l++) 
-        	    				matchedIndices.add(cdsColl.get(l));
-        	    		}	
-        			}
-        			
-        			// Case - Start present inside a CDS, but end present Outside all CDS, so collect all CDS from index i
-        			if(!foundEnd){
-        				for (int l = i; l <= cdsColl.size() - 1; l++)
-        					matchedIndices.add(cdsColl.get(l));
-        			}
-        			
-        		}// end of else	
-    		}
-    	}// end of for
-    	
-
-		String feature = "peptide";
-		String score = ".";
-		
-    	// Case - start and end present Outside CDS
-    	if(matchedIndices.size() == 0){
-    		String attr = "ID=pep_"+ accession + "description=peptide;Derives_from=" + accession;
-    		// Just use the information from the first CDS entry with mapped start and end locations
-    		gffEntry = cdsColl.get(0).getSeqID() + "\t" + cdsColl.get(0).getSource() + "\t" + feature + "\t" + mappedStartLocation 
-    		+ "\t" + mappedEndLocation + "\t" + score + "\t" + cdsColl.get(0).getSePhase() + "\t" + attr + "\n";
-    		
-    		try{
-    			if(mappedEndLocation < mappedStartLocation){
-    				System.out.println("End location = " + mappedEndLocation + " smaller than start location = " + mappedStartLocation);
-    				throw new Exception();
-    			}
-    		}catch(Exception e){
-    			//e.printStackTrace();
-    		}
-    		
-    		return gffEntry;
-    	}
-    	// otherwise, do usual mapping..
-    	for(int i = 0 ; i < matchedIndices.size(); i++){
-    		
-    		String seqId = matchedIndices.get(i).getSeqID();
-    		String source = matchedIndices.get(i).getSource();
-    		long start = matchedIndices.get(i).getStart();
-    		long end = matchedIndices.get(i).getEnd();
-    		String phase = matchedIndices.get(i).getSePhase();
-    		//String attr = matchedIndices.get(i).getAttribute();
-    		String attr = "ID=pep_"+ accession + "_"+ i + "description=peptide;Derives_from=" + accession;
-    		
-    		// first index
-    		if(i == 0){
-    			start = mappedStartLocation;
-    		}
-    		
-    		// last index
-    		long shiftNeeded = 0;
-    		if(i == matchedIndices.size() - 1){
-    			
-    			if(shiftForEndPosition == true){
-        			shiftNeeded = mappedEndLocation - matchedIndices.get(i-1).getEnd() ; 
-        			end = start + shiftNeeded;
-        		}
-    			else
-    				end = mappedEndLocation;
-    		}
-    		
-    		
-    		gffEntry = gffEntry + seqId + "\t" + source + "\t" + feature + "\t" + start + "\t" + end 
-    									+ "\t" + score + "\t" + phase + "\t" + attr + "\n";
-    		
-    		try{
-    			if(end < start){
-    				System.out.println(" - End location = " + end + " smaller than start location = " + start);
-    				throw new Exception();
-    			}
-    		}catch(Exception e){
-    			//e.printStackTrace();
-    		}
+    	// compute Diff = end - start
+    	for(int i = 0 ; i < cdsCollection.size() ; i++){
+    		//cummStartPosition[i] = cdsCollection.get(i).getEnd() - cdsCollection.get(i).getStart();
+    		cummStartPosition[i] = cdsCollection.get(i).getEnd() - cdsCollection.get(i).getStart() + 1;
     	}
     	
-    	return gffEntry;
+    	// Form cumulative array 
+    	for(int i = 1; i < cummStartPosition.length ; i++){
+    		cummStartPosition[i] = cummStartPosition[i] + cummStartPosition[i-1];
+    	}
     	
+    	return cummStartPosition;
     }
     
+    /**
+     * 
+     * @param number
+     * @param cummArray
+     * @return
+     */
+    int determineTheIndexInCummulativeArray(long number, long[] cummArray){
+    	int idx = -1;
+    	
+    	try{
+    		
+    		for(int i = 0; i < cummArray.length; i++){
+    			if(number <= cummArray[i]){
+    				idx = i;
+    				break;
+    			}
+    		}
+    	
+    	}catch(Exception e){
+    		System.out.println(e.getMessage());
+    		e.printStackTrace();
+    	}
+    	
+    	return idx;
+    }
+     
     /**
      * Test function 1
      * @param args
@@ -594,54 +605,29 @@ public class ValidateGFF {
 			 return;
 		}
 		
-		// GFF writing part here...
-		if(args.length == 4){
-			String summaryFile     		   = args[1];
-			String decoyIdentifier 		   = args[2];
-			String  outputGffFile          = args[3];
-			ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
-			ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
+		try{
+			// GFF writing part here...
+		if(args.length == 5){
+				String summaryFile     		   = args[1];
+				String decoyIdentifier 		   = args[2];
+				String  outputGffFile          = args[3];
+				double fdrThreshold 		   = Double.parseDouble(args[4]);
 			
-			vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
+				ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
+				ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile(fdrThreshold);
 			
-		}else{
-	
-			System.out.println("Usage For creating Fasta file : gffFile");
-	
-			System.out.println("Usage For writing Gff : " +
-					"gffFile wholeDatabaseSummaryFile decoy-identifier outputGffFile");
-			return;
+				vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
 		}
-			
-		
+		}catch(NumberFormatException e){
+			String errMsg = "Exception in the arguments : Check the arguments";
+			System.out.println(errMsg);
+			throw e;
+		}catch(Exception e){
+			String errMsg = "Exception caused in Mapping of peptides on GFF file";
+			System.out.println(errMsg);
+			throw e;
+		}
 
 	}
 
-	/**
-	 * 
-	 * @param args
-	 * @throws Exception
-	 */
-/*	public static void main(String [] args) throws Exception{
-		
-		String gffFile = args[0];
-		
-		ValidateGFF vgf = new ValidateGFF();
-		
-		// Fasta creation call here
-		//vgf.createFastaFromGFF(gffFile);
-		
-		
-		// GFF writing part here...
-		String summaryFile     		   = args[1];
-		
-		String decoyIdentifier 		   = args[2];
-		String  outputGffFile          = args[3];
-		ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
-		ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
-		
-		vgf.writingTheGFFfile(gffFile, outputGffFile, prList);
-
-	}
-	*/
 }
