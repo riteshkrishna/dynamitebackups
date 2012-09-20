@@ -267,16 +267,16 @@ public class PerformPostProcessingUsingMzLib {
 		PropertyConfigurator.configure(logProperties);
 		
 		/*
-		String proteoInput_search = "inputFiles/inputFileTemplate.txt";
-		String proteoInput_database = "inputFiles/mzIdentMLParser_inputFile.txt";
+		String proteoInput_search = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/inputFiles/inputFileTemplate_ORFDB.txt";
+		String proteoInput_database = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/inputFiles/mzIdentMLParser_inputFile.txt";
 		String pipelineSummaryFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/SearchResults/WholeSummary_sfif.txt";
-		String omssaLikeOutputFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess/WholeSummary_sfif.csv";
+		String omssaLikeOutputFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess//WholeSummary_sfif.csv";
 		double csvThreshold = 0.1;
 		double fdrThreshold = 0.01;
-		String summarymzIdentFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess/sfif.mzid";
+		String summarymzIdentFile = "/Users/riteshk/Ritesh_Work/ProteoAnnotator-ToxoResults/postprocess//WholeSummary_sfif_ORF.mzid";
 		*/
 		try{
-			
+	
 			if(args.length != 7){
 				System.out.println("Arguments: proteoAnnotator-searchInput.txt proteoAnnotator-databaseInput.txt " +
 						"proteoAnnotator-SummaryFile.txt output.csv csv_threshold fdr_threshold output_mzidentMLFile.mzid");
