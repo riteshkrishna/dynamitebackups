@@ -13,6 +13,7 @@ public class ReadProteinRecordFromSummaryFile {
 	final int AccessionColumn = 0;
 	final int startColumn     = 7;
 	final int endcolumn       = 8;
+	final int fdr_column 	  = 4;
 	/**************************************************************/
 	
 	ArrayList<ProteinResults> proteinHits;
@@ -32,16 +33,17 @@ public class ReadProteinRecordFromSummaryFile {
 	
 	/**
 	 * 
+	 * @param fdrThreshold Threshold to filter results
 	 * @return
 	 * @throws Exception
 	 */
-	public ArrayList<ProteinResults> readProteinResultsFromFile() throws Exception{
+	public ArrayList<ProteinResults> readProteinResultsFromFile(double fdrThreshold) throws Exception{
 			
 		Scanner scanner = new Scanner(new FileReader(new File(summaryFile)));
 		
 		try{
 			while(scanner.hasNextLine()){
-				processLine(scanner.nextLine());
+				processLine(scanner.nextLine(),fdrThreshold);
 			}
 		}finally{
 			scanner.close();
@@ -53,7 +55,7 @@ public class ReadProteinRecordFromSummaryFile {
 	/**
 	 * 
 	 */
-	void processLine(String line) throws Exception{
+	void processLine(String line,double fdrThreshold) throws Exception{
 		
 		if(line.isEmpty())
 			return;
@@ -62,12 +64,13 @@ public class ReadProteinRecordFromSummaryFile {
 		String accession;
 		long start;
 		long end;
+		double fdr_score;
 		
 		String [] fields = line.split("\t",-1); // This will force split to continue for blank spaces as well
 	    
-		if( (fields[AccessionColumn] == null) || (fields[startColumn] == null) || (fields[endcolumn] == null) ){
+		if( (fields[AccessionColumn] == null) || (fields[startColumn] == null) || (fields[endcolumn] == null) || (fields[fdr_column] == null)) {
 			Exception e = new Exception(" Emptry field (Accession = " + fields[AccessionColumn] 
-							+ ", Start = " + fields[startColumn]+ " , end = " + fields[endcolumn] + ") in the summary file");
+							+ ", Start = " + fields[startColumn] + " , end = " + fields[endcolumn] + " , FDR = " + fields[fdr_column] + " ) in the summary file");
 			throw e;
 		}
 		
@@ -76,6 +79,14 @@ public class ReadProteinRecordFromSummaryFile {
 			decoy = true;
 		start = Long.parseLong(fields[startColumn]);
 		end   = Long.parseLong(fields[endcolumn]);
+		fdr_score = Double.parseDouble(fields[fdr_column]);
+		
+		// Skip the records with FDR above the threshold
+		if(fdr_score > fdrThreshold)
+			return;
+		// Skip the decoy identifications
+		if(decoy == true)
+			return;
 		
 		// Handle the empty accessions by referring to the previous ones in the summary file
 		if (accession.trim().isEmpty())
@@ -96,10 +107,12 @@ public class ReadProteinRecordFromSummaryFile {
 		
 		String summaryFile     		   = args[0];
 		String decoyIdentifier 		   = args[1];
+		double fdrThreshold 		   = Double.parseDouble(args[2]);
+		
 		ReadProteinRecordFromSummaryFile rip = new ReadProteinRecordFromSummaryFile(summaryFile,decoyIdentifier);
 		
 		try{
-			ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile();
+			ArrayList<ProteinResults> prList = rip.readProteinResultsFromFile(fdrThreshold);
 			
 			for(int i = 0 ; i < prList.size(); i++){
 				System.out.println(prList.get(i).getAccession() +"\t" +  prList.get(i).getDecoyOrNot() +"\t" + 
