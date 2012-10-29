@@ -40,7 +40,7 @@ foreach my $file (@files) {
 	my $lineCounter = 0;
 
 	foreach my $line (<INFILE>) {
-		chomp($line);
+		#chomp($line);
 		$lineCounter++;
 		
 		if(index($line,$endTag) >= 0){ 
